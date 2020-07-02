@@ -8,7 +8,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\buildtools\local-development.snk</AssemblyOriginatorKeyFile>
     <RootNamespace>Amazon.XRay.Recorder.AutoInstrumentation.Unittests</RootNamespace> 
   </PropertyGroup>
 
