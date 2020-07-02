@@ -120,6 +120,12 @@ Instead of using profiler, you may choose to manually instrument AWS X-Ray SDK i
 Amazon.XRay.Recorder.AutoInstrumentation.Initialize.AddXRay();
 ```
 
+## Development
+
+### Minimum Requirements
+
+For building packages locally, you need to have Visual Studio 2019 installed with workloads **.NET desktop development** and **Desktop development with C++**.
+
 ## Getting Help
 
 Please use these community resources for getting help.
