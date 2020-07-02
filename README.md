@@ -113,7 +113,7 @@ Note:
 
 Instead of using profiler, you may choose to manually instrument AWS X-Ray SDK into your Asp.Net Core application.
 
-1. Import [AWSXRayRecorder.AutoInstrumentation]() Nuget package into your project.
+1. Import `AWSXRayRecorder.AutoInstrumentation` Nuget package into your project.
 
 2. Add the following method into any method in `startup.cs` or `program.cs` file
 ```
