@@ -32,7 +32,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     /// </summary>
     public class HttpOutDiagnosticListenerNetstandard : DiagnosticListenerBase
     {
-        private readonly Logger _logger = Logger.GetLogger(typeof(HttpOutDiagnosticListenerNetstandard));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(HttpOutDiagnosticListenerNetstandard));
 
         internal override string Name => "HttpHandlerDiagnosticListener";
 
