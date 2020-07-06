@@ -36,7 +36,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         internal override string Name => "HttpHandlerDiagnosticListener";
 
-        private readonly ConcurrentDictionary<HttpRequestMessage, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<HttpRequestMessage, Subsegment>();
+        private static readonly ConcurrentDictionary<HttpRequestMessage, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<HttpRequestMessage, Subsegment>();
 
         protected override void OnEvent(KeyValuePair<string, object> value)
         {
