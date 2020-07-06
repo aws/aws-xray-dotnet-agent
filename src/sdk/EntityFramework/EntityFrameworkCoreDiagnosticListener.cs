@@ -30,7 +30,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     /// </summary>
     public class EntityFrameworkCoreDiagnosticListener : DiagnosticListenerBase
     {
-        private readonly Logger _logger = Logger.GetLogger(typeof(EntityFrameworkCoreDiagnosticListener));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(EntityFrameworkCoreDiagnosticListener));
         
         internal override string Name => "Microsoft.EntityFrameworkCore";
 
