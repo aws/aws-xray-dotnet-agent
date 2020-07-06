@@ -32,7 +32,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     /// </summary>
     public class SqlDiagnosticListener : DiagnosticListenerBase
     {
-        private readonly Logger _logger = Logger.GetLogger(typeof(SqlDiagnosticListener));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(SqlDiagnosticListener));
 
         internal override string Name => "SqlClientDiagnosticListener";
 
