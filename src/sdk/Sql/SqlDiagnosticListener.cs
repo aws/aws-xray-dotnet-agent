@@ -36,7 +36,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         internal override string Name => "SqlClientDiagnosticListener";
 
-        private readonly ConcurrentDictionary<DbCommand, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<DbCommand, Subsegment>();
+        private static readonly ConcurrentDictionary<DbCommand, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<DbCommand, Subsegment>();
 
         protected override void OnEvent(KeyValuePair<string, object> value)
         {
