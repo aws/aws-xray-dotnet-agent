@@ -29,7 +29,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         private readonly List<DiagnosticListenerBase> _diagnosticListeners;
         private readonly List<IDisposable> _subscriptions = new List<IDisposable>();
 
-        public DiagnosticListenerObserver(List<DiagnosticListenerBase> diagnosticListeners)
+        public DiagnosticListenerObserver(IList<DiagnosticListenerBase> diagnosticListeners)
         {
             _diagnosticListeners = diagnosticListeners;
         }
