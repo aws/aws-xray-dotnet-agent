@@ -77,7 +77,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
             var request = Fetch(value, "Request");
             if (request is HttpWebRequest webRequest)
             {
-                // Skip AWS Request
+                // Skip AWS SDK Request since it is instrumented using the SDK
                 if (HttpRequestUtil.IsTraceable(webRequest))
                 {
                     HttpRequestUtil.ProcessRequest(webRequest);
