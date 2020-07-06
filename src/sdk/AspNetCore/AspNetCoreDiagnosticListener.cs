@@ -32,7 +32,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     /// </summary>
     public class AspNetCoreDiagnosticListener : DiagnosticListenerBase
     {
-        private readonly Logger _logger = Logger.GetLogger(typeof(AspNetCoreDiagnosticListener));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(AspNetCoreDiagnosticListener));
         
         internal override string Name => "Microsoft.AspNetCore";
 
