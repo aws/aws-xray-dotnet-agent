@@ -51,7 +51,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         /// </summary>
         internal static void SetSegmentNamingStrategy(SegmentNamingStrategy segmentNamingStrategy)
         {
-            SegmentNamingStrategy = segmentNamingStrategy ?? throw new ArgumentException("segmentNamingStrategy");
+            SegmentNamingStrategy = segmentNamingStrategy ?? throw new ArgumentNullException("segmentNamingStrategy");
         }
 
         internal static void SetAWSXRayRecorder(AWSXRayRecorder recorder)
