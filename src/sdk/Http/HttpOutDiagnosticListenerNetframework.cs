@@ -36,7 +36,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     {
         private readonly Logger _logger = Logger.GetLogger(typeof(HttpOutDiagnosticListenerNetframework));
 
-        private readonly ConcurrentDictionary<HttpWebRequest, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<HttpWebRequest, Subsegment>();
+        private static readonly ConcurrentDictionary<HttpWebRequest, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<HttpWebRequest, Subsegment>();
 
         internal override string Name => "System.Net.Http.Desktop";
 
