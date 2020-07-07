@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="HttpRequestUtil.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -188,6 +188,14 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         }
 
         /// <summary>
+        /// Handles status code when an exception occurs
+        /// </summary>
+        internal static void HandleStatus(HttpStatusCode httpStatusCode, Subsegment subsegment)
+        {
+            ProcessResponse(httpStatusCode, null, subsegment);
+        }
+
+        /// <summary>
         /// End subsegment.
         /// </summary>
         internal static void EndSubsegment()
@@ -286,11 +294,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             {
                 AWSXRayRecorder.Instance.TraceContext.HandleEntityMissing(AWSXRayRecorder.Instance, e, "Failed to get entity since it is not available in trace context.");
             }
-            catch (InvalidCastException e)
-            {
-                _logger.Error(new EntityNotAvailableException("Failed to cast the entity to Subsegment.", e), "Failed to get the Subsegment from trace context.");
-            }
-
+            
             return false;
         }
     }

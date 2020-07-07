@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="SqlDiagnosticListener.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Reflection;
 
 namespace Amazon.XRay.Recorder.AutoInstrumentation
 {
@@ -36,7 +35,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         internal override string Name => "SqlClientDiagnosticListener";
 
-        private static readonly ConcurrentDictionary<DbCommand, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<DbCommand, Subsegment>();
+        private static readonly ConcurrentDictionary<DbCommand, Subsegment> CurrentDbCommands = new ConcurrentDictionary<DbCommand, Subsegment>();
 
         protected override void OnEvent(KeyValuePair<string, object> value)
         {
@@ -84,11 +83,11 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStart(object value)
         {
-            var command = Fetch(value, "Command");
+            var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
             if (command is DbCommand dbcommand)
             {
                 // Skip processing EntityFramework Core request
-                if (SqlRequestUtil.IsTraceable() && CurrentTraceEntity.TryAdd(dbcommand, null))
+                if (SqlRequestUtil.IsTraceable() && CurrentDbCommands.TryAdd(dbcommand, null))
                 {
                     SqlRequestUtil.BeginSubsegment(dbcommand);
                     SqlRequestUtil.ProcessCommand(dbcommand);
@@ -98,10 +97,10 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStop(object value)
         {
-            var command = Fetch(value, "Command");
+            var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
             if (command is DbCommand dbcommand)
             {
-                if (CurrentTraceEntity.TryRemove(dbcommand, out _))
+                if (CurrentDbCommands.TryRemove(dbcommand, out _))
                 {
                     SqlRequestUtil.EndSubsegment();
                 }
@@ -110,24 +109,16 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventException(object value)
         {
-            var command = Fetch(value, "Command");
-            var exc = Fetch(value, "Exception");
+            var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
+            var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception");
             if (command is DbCommand dbcommand && exc is Exception exception)
             {
-                if (CurrentTraceEntity.TryRemove(dbcommand, out _))
+                if (CurrentDbCommands.TryRemove(dbcommand, out _))
                 {
                     SqlRequestUtil.ProcessException(exception);
                     SqlRequestUtil.EndSubsegment();
                 }
             }
-        }
-
-        /// <summary>
-        /// Fetch value
-        /// </summary>
-        private object Fetch(object value, string item)
-        {
-            return value.GetType().GetTypeInfo().GetDeclaredProperty(item)?.GetValue(value);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="AspNetCoreDiagnosticListener.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ using Amazon.XRay.Recorder.AutoInstrumentation.Utils;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Amazon.XRay.Recorder.AutoInstrumentation
 {
@@ -73,7 +72,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStart(object value)
         {
-            var context = Fetch(value, "HttpContext");
+            var context = AgentUtil.FetchPropertyFromReflection(value, "HttpContext");
             if (context is HttpContext httpContext)
             {
                 AspNetCoreRequestUtil.ProcessRequest(httpContext);
@@ -82,7 +81,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStop(object value)
         {
-            var context = Fetch(value, "HttpContext");
+            var context = AgentUtil.FetchPropertyFromReflection(value, "HttpContext");
             if (context is HttpContext httpContext)
             {
                 AspNetCoreRequestUtil.ProcessResponse(httpContext);
@@ -91,19 +90,11 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventException(object value)
         {
-            var exc = Fetch(value, "Exception");
+            var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception");
             if (exc is Exception exception)
             {
                 AspNetCoreRequestUtil.ProcessException(exception);
             }
-        }
-
-        /// <summary>
-        /// Fetch value 
-        /// </summary>
-        private object Fetch(object value, string item)
-        {
-            return value.GetType().GetTypeInfo().GetDeclaredProperty(item)?.GetValue(value);
         }
     }
 }

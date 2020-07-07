@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="SqlEventListener.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -39,9 +39,9 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         private const int SqlCommandExecutedAfterId = 2;
 
         private static readonly AWSXRayRecorder _recorder = AWSXRayRecorder.Instance;
-        private readonly Logger _logger = Logger.GetLogger(typeof(SqlEventListener));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(SqlEventListener));
 
-        private readonly ConcurrentDictionary<int, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<int, Subsegment>();
+        private static readonly ConcurrentDictionary<int, Subsegment> CurrentSqlEvents = new ConcurrentDictionary<int, Subsegment>();
 
         /// <summary>
         /// Enable receiving events
@@ -92,7 +92,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         private void OnEventStart(EventWrittenEventArgs sqlEventData)
         {
-            if (sqlEventData.Payload.Count < 4)
+            if (sqlEventData.Payload.Count != 4)
             {
                 return;
             }
@@ -108,16 +108,12 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
                     int id = Convert.ToInt32(sqlEventData.Payload[0], CultureInfo.InvariantCulture);
                     if (currentSubsegment != null)
                     {
-                        CurrentTraceEntity.TryAdd(id, currentSubsegment);
+                        CurrentSqlEvents.TryAdd(id, currentSubsegment);
                     }
                 }
                 catch (EntityNotAvailableException e)
                 {
                     AWSXRayRecorder.Instance.TraceContext.HandleEntityMissing(AWSXRayRecorder.Instance, e, "Subsegment is not available in trace context.");
-                }
-                catch (InvalidCastException e)
-                {
-                    _logger.Error(new EntityNotAvailableException("Failed to cast the entity to Subsegment.", e), "Failed to get the Subsegment from trace context.");
                 }
             }
         }
@@ -127,7 +123,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         private void OnEventStop(EventWrittenEventArgs sqlEventData)
         {
-            if (sqlEventData.Payload.Count < 3)
+            if (sqlEventData.Payload.Count != 3)
             {
                 return;
             }
@@ -136,12 +132,11 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
             int state = Convert.ToInt32(sqlEventData.Payload[1], CultureInfo.InvariantCulture);
             int exceptionNumber = Convert.ToInt32(sqlEventData.Payload[2], CultureInfo.InvariantCulture);
 
-            if (CurrentTraceEntity.TryRemove(id, out var currentSubsegment))
+            if (CurrentSqlEvents.TryRemove(id, out var currentSubsegment))
             {
                 if ((state & 2) == 2)
                 {
-                    var exceptionMessage = new Exception("SQL Exception, status code: " + exceptionNumber);
-                    currentSubsegment.AddException(exceptionMessage);
+                    currentSubsegment.HasFault = true;
                 }
                 SqlRequestUtil.EndSubsegment(currentSubsegment);
             } 

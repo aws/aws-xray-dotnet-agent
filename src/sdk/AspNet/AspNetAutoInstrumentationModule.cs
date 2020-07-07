@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="AspNetAutoInstrumentationModule.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     {
         private HttpApplication currentHttpApplication;
         
-        private readonly ConcurrentDictionary<HttpApplication, HttpApplication> CurrentTraceEntity = new ConcurrentDictionary<HttpApplication, HttpApplication>();
+        private static readonly ConcurrentDictionary<HttpApplication, byte> CurrentHttpModules = new ConcurrentDictionary<HttpApplication, byte>();
 
         static AspNetAutoInstrumentationModule()
         {
@@ -46,10 +46,10 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         {
             var assemblyName = new AssemblyName(args.Name).Name;
 
-            // DotNet agent installer installs the required dependencies in user's "C:\ProgramFiles\AWSXRayAgent\Net45" folder (64bit)
-            var agentFolderRootPath = Environment.Is64BitOperatingSystem ? Environment.ExpandEnvironmentVariables("%ProgramW6432%") : Environment.ExpandEnvironmentVariables("%ProgramFiles(x86)%");
+            // DotNet agent installer installs the required dependencies in user's "C:\ProgramFiles\AWSXRayAgent\Net45" folder (64bit) or "C:\ProgramFiles(x86)\AWSXRayAgent\Net45" (32bit)
+            var agentFolderRootPath = GetAgentFolderPath();
 
-            var agentFolderPath = agentFolderRootPath + "\\AWSXRayAgent\\Net45"; 
+            var agentFolderPath = Path.Combine(agentFolderRootPath, "AWSXRayAgent\\Net45"); 
 
             var path = Path.Combine(agentFolderPath, $"{assemblyName}.dll");
 
@@ -61,9 +61,22 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
             return assembly;
         }
 
-        private static byte[] LoadBytesFromAssembly(string path, FileAccess fileAccess = FileAccess.Read, FileShare shareMode = FileShare.ReadWrite)
+        /// <summary>
+        /// Get the path to the AWS Agent folder
+        /// </summary>
+        private static string GetAgentFolderPath()
         {
-            using (var fileStream = new FileStream(path, FileMode.Open, fileAccess, shareMode))
+            if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
+            {
+                return Environment.ExpandEnvironmentVariables("%ProgramFiles(x86)%");
+            }
+
+            return Environment.ExpandEnvironmentVariables("%ProgramFiles%");
+        }
+
+        private static byte[] LoadBytesFromAssembly(string path)
+        {
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 using (var memoryStream = new MemoryStream())
                 {
@@ -75,12 +88,12 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         public void Init(HttpApplication httpApplication)
         {
-            if (CurrentTraceEntity.TryAdd(httpApplication, null))
+            if (CurrentHttpModules.TryAdd(httpApplication, 0))
             {
                 currentHttpApplication = httpApplication;
-                httpApplication.BeginRequest += AspNetRequestUtil.ProcessHTTPRequest;
-                httpApplication.EndRequest += AspNetRequestUtil.ProcessHTTPResponse;
-                httpApplication.Error += AspNetRequestUtil.ProcessHTTPError;
+                currentHttpApplication.BeginRequest += AspNetRequestUtil.ProcessHTTPRequest;
+                currentHttpApplication.EndRequest += AspNetRequestUtil.ProcessHTTPResponse;
+                currentHttpApplication.Error += AspNetRequestUtil.ProcessHTTPError;
             }
         }
 
@@ -88,7 +101,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         {
             if (currentHttpApplication != null)
             {
-                CurrentTraceEntity.TryRemove(currentHttpApplication, out _);
+                CurrentHttpModules.TryRemove(currentHttpApplication, out _);
                 currentHttpApplication = null;
             }
         }

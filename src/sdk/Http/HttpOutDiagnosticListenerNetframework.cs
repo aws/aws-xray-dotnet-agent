@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="HttpOutDiagnosticListenerNetframework.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
-using System.Reflection;
 
 namespace Amazon.XRay.Recorder.AutoInstrumentation
 {
@@ -34,9 +33,9 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     /// </summary>
     public class HttpOutDiagnosticListenerNetframework : DiagnosticListenerBase
     {
-        private readonly Logger _logger = Logger.GetLogger(typeof(HttpOutDiagnosticListenerNetframework));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(HttpOutDiagnosticListenerNetframework));
 
-        private static readonly ConcurrentDictionary<HttpWebRequest, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<HttpWebRequest, Subsegment>();
+        private static readonly ConcurrentDictionary<HttpWebRequest, Subsegment> CurrentHttpWebRequests = new ConcurrentDictionary<HttpWebRequest, Subsegment>();
 
         internal override string Name => "System.Net.Http.Desktop";
 
@@ -74,7 +73,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         private void OnEventStart(object value)
         {
-            var request = Fetch(value, "Request");
+            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
             if (request is HttpWebRequest webRequest)
             {
                 // Skip AWS SDK Request since it is instrumented using the SDK
@@ -87,16 +86,12 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
                         var currentSubsegment = AWSXRayRecorder.Instance.GetEntity() as Subsegment;
                         if (currentSubsegment != null)
                         {
-                            CurrentTraceEntity.TryAdd(webRequest, currentSubsegment);
+                            CurrentHttpWebRequests.TryAdd(webRequest, currentSubsegment);
                         }
                     }
                     catch (EntityNotAvailableException e)
                     {
                         AWSXRayRecorder.Instance.TraceContext.HandleEntityMissing(AWSXRayRecorder.Instance, e, "Subsegment is not available in trace context.");
-                    }
-                    catch (InvalidCastException e)
-                    {
-                        _logger.Error(new EntityNotAvailableException("Failed to cast the entity to Subsegment.", e), "Failed to  get the Subsegment from trace context.");
                     }
                 }
             }
@@ -107,11 +102,11 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         private void OnEventStop(object value)
         {
-            var request = Fetch(value, "Request");
-            var response = Fetch(value, "Response");
+            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
+            var response = AgentUtil.FetchPropertyFromReflection(value, "Response");
             if (request is HttpWebRequest webRequest && response is HttpWebResponse webResponse)
             {
-                if (CurrentTraceEntity.TryRemove(webRequest, out var currentSubsegment))
+                if (CurrentHttpWebRequests.TryRemove(webRequest, out var currentSubsegment))
                 {
                     if (webResponse != null)
                     {
@@ -127,29 +122,16 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         private void OnEventException(object value)
         {
-            var request = Fetch(value, "Request");
-            var status = Fetch(value, "StatusCode");
+            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
+            var status = AgentUtil.FetchPropertyFromReflection(value, "StatusCode");
             if (request is HttpWebRequest webRequest && status is HttpStatusCode httpStatusCode)
             {
-                if (CurrentTraceEntity.TryRemove(webRequest, out var currentSubsegment))
+                if (CurrentHttpWebRequests.TryRemove(webRequest, out var currentSubsegment))
                 {
-                    var statusCode = (int)httpStatusCode;
-                    if (statusCode >= 300)
-                    {
-                        var exceptionMessage = new Exception("Outgoing Http Exception, status code: " + statusCode);
-                        currentSubsegment.AddException(exceptionMessage);
-                    }
+                    HttpRequestUtil.HandleStatus(httpStatusCode, currentSubsegment);
                     HttpRequestUtil.EndSubsegment(currentSubsegment);
                 }
             }
-        }
-
-        /// <summary>
-        /// Fetch value
-        /// </summary>
-        private object Fetch(object value, string item)
-        {
-            return value.GetType().GetTypeInfo().GetDeclaredProperty(item)?.GetValue(value);
         }
     }
 }

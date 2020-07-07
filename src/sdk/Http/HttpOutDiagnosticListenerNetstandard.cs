@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="HttpOutDiagnosticListenerNetstandard.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Reflection;
 
 namespace Amazon.XRay.Recorder.AutoInstrumentation
 {
@@ -36,7 +35,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         internal override string Name => "HttpHandlerDiagnosticListener";
 
-        private static readonly ConcurrentDictionary<HttpRequestMessage, Subsegment> CurrentTraceEntity = new ConcurrentDictionary<HttpRequestMessage, Subsegment>();
+        private static readonly ConcurrentDictionary<HttpRequestMessage, Subsegment> CurrentHttpRequestMessages = new ConcurrentDictionary<HttpRequestMessage, Subsegment>();
 
         protected override void OnEvent(KeyValuePair<string, object> value)
         {
@@ -69,11 +68,11 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStart(object value)
         {
-            var request = Fetch(value, "Request");
+            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
             if (request is HttpRequestMessage httpRequestMessage)
             {
-                // Skip processing AWS request
-                if (HttpRequestUtil.IsTraceable(httpRequestMessage) && CurrentTraceEntity.TryAdd(httpRequestMessage, null))
+                // Skip AWS SDK Request since it is instrumented using the SDK
+                if (HttpRequestUtil.IsTraceable(httpRequestMessage) && CurrentHttpRequestMessages.TryAdd(httpRequestMessage, null))
                 {
                     HttpRequestUtil.ProcessRequest(httpRequestMessage);
                 }
@@ -82,11 +81,11 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStop(object value)
         {
-            var request = Fetch(value, "Request");
-            var response = Fetch(value, "Response");
+            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
+            var response = AgentUtil.FetchPropertyFromReflection(value, "Response");
             if (request is HttpRequestMessage httpRequestMessage && response is HttpResponseMessage httpResponseMessage)
             {
-                if (CurrentTraceEntity.TryRemove(httpRequestMessage, out _))
+                if (CurrentHttpRequestMessages.TryRemove(httpRequestMessage, out _))
                 {
                     HttpRequestUtil.ProcessResponse(httpResponseMessage);
                     // End subsegment here
@@ -97,23 +96,15 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventException(object value)
         {
-            var request = Fetch(value, "Request");
-            var exc = Fetch(value, "Exception");
+            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
+            var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception");
             if (request is HttpRequestMessage httpRequestMessage && exc is Exception exception)
             {
-                if (CurrentTraceEntity.TryRemove(httpRequestMessage, out _))
+                if (CurrentHttpRequestMessages.TryRemove(httpRequestMessage, out _))
                 {
                     HttpRequestUtil.ProcessException(exception);
                 }
             }
-        }
-
-        /// <summary>
-        /// Fetch value
-        /// </summary>
-        private object Fetch(object value, string item)
-        {
-            return value.GetType().GetTypeInfo().GetDeclaredProperty(item)?.GetValue(value);
         }
     }
 }

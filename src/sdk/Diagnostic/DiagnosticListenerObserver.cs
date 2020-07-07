@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="DiagnosticListenerBase.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         private readonly List<DiagnosticListenerBase> _diagnosticListeners;
         private readonly List<IDisposable> _subscriptions = new List<IDisposable>();
 
-        public DiagnosticListenerObserver(IList<DiagnosticListenerBase> diagnosticListeners)
+        public DiagnosticListenerObserver(List<DiagnosticListenerBase> diagnosticListeners)
         {
             _diagnosticListeners = diagnosticListeners;
         }

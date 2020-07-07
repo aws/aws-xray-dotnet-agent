@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
-// <copyright file="Util.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// <copyright file="AgentUtil.cs" company="Amazon.com">
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 //-----------------------------------------------------------------------------
 
 using System.Data.Common;
+using System.Reflection;
 
 namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 {
-    public static class Util
+    public static class AgentUtil
     {
         private static readonly string EntityFramework = "EntityFramework";
 
@@ -87,6 +88,14 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
                 }
             }
             return value;
+        }
+
+        /// <summary>
+        /// Fetch property from reflection
+        /// </summary>
+        public static object FetchPropertyFromReflection(object value, string item)
+        {
+            return value.GetType().GetTypeInfo().GetDeclaredProperty(item)?.GetValue(value);
         }
     }
 }

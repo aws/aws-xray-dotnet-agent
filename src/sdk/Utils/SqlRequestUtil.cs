@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="SqlRequestUtil.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -180,7 +180,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         private static void CollectSqlInformationDefault(DbCommand command)
         {
             var recorder = AWSXRayRecorder.Instance;
-            var databaseType = Util.GetDataBaseType(command);
+            var databaseType = AgentUtil.GetDataBaseType(command);
             recorder.AddSqlInformation("database_type", databaseType);
 
             recorder.AddSqlInformation("database_version", command.Connection.ServerVersion);
@@ -193,7 +193,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             // Remove sensitive information from connection string
             connectionStringBuilder.Remove("Password");
 
-            var userId = Util.GetUserId(connectionStringBuilder);
+            var userId = AgentUtil.GetUserId(connectionStringBuilder);
             // Do a pre-check for user ID since in the case of TrustedConnection, a user ID may not be available.
             if (userId != null)
             {
@@ -246,11 +246,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             {
                 AWSXRayRecorder.Instance.TraceContext.HandleEntityMissing(AWSXRayRecorder.Instance, e, "Failed to get entity since it is not available in trace context.");
             }
-            catch (InvalidCastException e)
-            {
-                _logger.Error(new EntityNotAvailableException("Failed to cast the entity to Subsegment.", e), "Failed to  get the Subsegment from trace context.");
-            }
-
+            
             return true;
         }
     }

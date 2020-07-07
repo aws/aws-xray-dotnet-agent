@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AutoInstrumentation\AWSXRayRecorder.AutoInstrumentation.csproj" />
+    <ProjectReference Include="..\sdk\AWSXRayRecorder.AutoInstrumentation.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">

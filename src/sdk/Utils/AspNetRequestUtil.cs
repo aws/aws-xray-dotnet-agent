@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
 // <copyright file="AspNetRequestUtil.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -25,8 +25,6 @@ using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Strategies;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Threading;
 using System.Web;
 
 namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
@@ -39,7 +37,6 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
     {
         private static AWSXRayRecorder _recorder;
         private static SegmentNamingStrategy segmentNamingStrategy;
-        private static readonly ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
         private static readonly Logger _logger = Logger.GetLogger(typeof(AspNetRequestUtil));
 
         /// <summary>
@@ -71,16 +68,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 
         private static SegmentNamingStrategy GetSegmentNamingStrategy()
         {
-            rwLock.EnterReadLock();
-            try
-            {
-                // It is safe for this thread to read from the shared resource.
-                return segmentNamingStrategy;
-            }
-            finally
-            {
-                rwLock.ExitReadLock(); // Ensure that the lock is released.
-            }
+            return segmentNamingStrategy;
         }
 
         private static void InitializeAspNet(FixedSegmentNamingStrategy segmentNamingStrategy)
@@ -98,16 +86,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 
         private static void SetSegmentNamingStrategy(SegmentNamingStrategy value)
         {
-            rwLock.EnterWriteLock();
-            try
-            {
-                // It is safe for this thread to write to the shared resource.
-                segmentNamingStrategy = value;
-            }
-            finally
-            {
-                rwLock.ExitWriteLock(); // Ensure that the lock is released.
-            }
+            segmentNamingStrategy = value;
         }
 
         internal static void ProcessHTTPRequest(object sender, EventArgs e)
@@ -172,10 +151,6 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             catch (EntityNotAvailableException e)
             {
                 _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Failed to get entity since it is not available in trace context while processing ASPNET request.");
-            }
-            catch (InvalidCastException e)
-            {
-                _logger.Error(new EntityNotAvailableException("Failed to cast the entity to Segment.", e), "Failed to get the segment from trace context for adding auto-instrumentation mark.");
             }
         }
 
