@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------------
 
 #if !NET45
+using Amazon.XRay.Recorder.AutoInstrumentation.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.Common;
 
@@ -43,7 +44,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Unittests
             {
                 ConnectionString = MySqlConnectionString
             };
-            object result = Amazon.XRay.Recorder.AutoInstrumentation.Utils.Util.GetUserId(builder);
+            object result = AgentUtil.GetUserId(builder);
             Assert.AreEqual("root", result.ToString());
         }
 
@@ -54,7 +55,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Unittests
             {
                 ConnectionString = SqlServerConnectionString
             };
-            object result = Amazon.XRay.Recorder.AutoInstrumentation.Utils.Util.GetUserId(builder);
+            object result = AgentUtil.GetUserId(builder);
             Assert.AreEqual("myUsername", result.ToString());
         }
 
@@ -65,7 +66,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Unittests
             {
                 ConnectionString = SqliteConnectionString
             };
-            object result = Amazon.XRay.Recorder.AutoInstrumentation.Utils.Util.GetUserId(builder);
+            object result = AgentUtil.GetUserId(builder);
             Assert.IsNull(result);
         }
 
@@ -76,7 +77,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Unittests
             {
                 ConnectionString = PostgreSqlConnectionString
             };
-            object result = Amazon.XRay.Recorder.AutoInstrumentation.Utils.Util.GetUserId(builder);
+            object result = AgentUtil.GetUserId(builder);
             Assert.AreEqual("postgres", result.ToString());
         }
 
@@ -87,7 +88,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Unittests
             {
                 ConnectionString = FirebirdSqlConnectionString
             };
-            object result = Amazon.XRay.Recorder.AutoInstrumentation.Utils.Util.GetUserId(builder);
+            object result = AgentUtil.GetUserId(builder);
             Assert.AreEqual("SYSDBA", result.ToString());
         }
     }

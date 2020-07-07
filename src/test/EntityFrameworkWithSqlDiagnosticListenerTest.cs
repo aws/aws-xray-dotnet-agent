@@ -53,41 +53,11 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Unittests
         [TestCleanup]
         public new void TestCleanup()
         {
-            //connection.Close();
-            //base.TestCleanup();
-            //_recorder.Dispose();
-            //_recorder = null;
-            //_subscription.Dispose();
-        }
-
-        [TestMethod]
-        public void TestEFCoreRequestWithSqlDiagnosticListener()
-        {
-            // EntityFramework request will first trigger EntityFrameworkCoreDiagnosticListener and then SqlDiagnosticListener,
-            // Without EntityFrameworkCoreDiagnosticListener, SqlDiagnosticListener will process EF Core request.
-            var subscription = new List<DiagnosticListenerBase>()
-            {
-                new SqlDiagnosticListener()
-            };
-
-            _subscription = DiagnosticListener.AllListeners.Subscribe(new DiagnosticListenerObserver(subscription));
-
-            _recorder.BeginSegment("EFCoreRequestWithSqlDiagnosticListener");
-
-            var context = GetTestEFContext();
-
-            var users = context.Users.Where(u => u.UserId == 1).ToList();
-
-            var segment = _recorder.TraceContext.GetEntity();
-            Assert.AreEqual(4, segment.Subsegments.Count);
-            var subsegment = segment.Subsegments[3];
-            Assert.IsNotNull(subsegment);
-            Assert.IsNotNull(subsegment.Sql);
-            Assert.AreEqual(0, subsegment.Subsegments.Count);
-            Assert.AreEqual("sqlite", subsegment.Sql["database_type"]);
-            Assert.AreEqual(_connectionString, subsegment.Sql["connection_string"]);
-            Assert.AreEqual(connection.ServerVersion, subsegment.Sql["database_version"]);
-            _recorder.EndSegment();
+            connection.Close();
+            base.TestCleanup();
+            _recorder.Dispose();
+            _recorder = null;
+            _subscription.Dispose();
         }
 
         [TestMethod]
