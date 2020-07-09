@@ -138,12 +138,12 @@ public:
 
     ULONG STDMETHODCALLTYPE AddRef(void) override
     {
-        return std::atomic_fetch_add(&this->refCount, 1) + 1;
+        return ++this->refCount;
     }
 
     ULONG STDMETHODCALLTYPE Release(void) override
     {
-        int count = std::atomic_fetch_sub(&this->refCount, 1) - 1;
+        int count = --this->refCount;
 
         if (count <= 0)
         {
