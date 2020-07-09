@@ -18,7 +18,6 @@
 #if !NET45
 using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core;
-using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Strategies;
@@ -117,43 +116,11 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             }
 
             // Mark the segment as auto-instrumented
-            AddAutoInstrumentationMark();
+            AgentUtil.AddAutoInstrumentationMark();
 
             if (isSampleDecisionRequested)
             {
                 httpContext.Response.Headers.Add(TraceHeader.HeaderKey, traceHeader.ToString()); // Its recommended not to modify response header after _next.Invoke() call
-            }
-        }
-
-        private static void AddAutoInstrumentationMark()
-        {
-            try
-            {
-                var segment = _recorder.GetEntity() as Segment;
-                IDictionary<string, object> awsAttribute = segment.Aws;
-
-                if (awsAttribute == null)
-                {
-                    _logger.DebugFormat("Unable to retrieve AWS dictionary to set the auto instrumentation flag.");
-                }
-                else
-                {
-                    Dictionary<string, string> xrayAttribute = (Dictionary<string, string>)awsAttribute["xray"];
-
-                    if (xrayAttribute == null)
-                    {
-                        _logger.DebugFormat("Unable to retrieve X-Ray dictionary from AWS dictionary of segment.");
-                    }
-                    else
-                    {
-                        // Set attribute "auto_instrumentation":"true" in the "xray" section of the segment
-                        xrayAttribute["auto_instrumentation"] = "true";
-                    }
-                }
-            }
-            catch (EntityNotAvailableException e)
-            {
-                _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Failed to get entity since it is not available in trace context while processing ASPNET Core request.");
             }
         }
 
@@ -273,8 +240,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 
             if (!AWSXRayRecorder.Instance.IsTracingDisabled())
             {
-                var responseAttributes = new Dictionary<string, object>();
-                PopulateResponseAttributes(response, responseAttributes);
+                var responseAttributes = PopulateResponseAttributes(response);
                 _recorder.AddHttpInformation("response", responseAttributes);
             }
 
@@ -288,23 +254,13 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             }
         }
 
-        private static void PopulateResponseAttributes(HttpResponse response, Dictionary<string, object> responseAttributes)
+        private static Dictionary<string, object> PopulateResponseAttributes(HttpResponse response)
         {
+            var responseAttributes = new Dictionary<string, object>();
+
             int statusCode = (int)response.StatusCode;
 
-            if (statusCode >= 400 && statusCode <= 499)
-            {
-                _recorder.MarkError();
-
-                if (statusCode == 429)
-                {
-                    _recorder.MarkThrottle();
-                }
-            }
-            else if (statusCode >= 500 && statusCode <= 599)
-            {
-                _recorder.MarkFault();
-            }
+            AgentUtil.MarkEntityFromStatus(statusCode);
 
             responseAttributes["status"] = statusCode;
 
@@ -312,6 +268,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             {
                 responseAttributes["content_length"] = response.Headers.ContentLength;
             }
+
+            return responseAttributes;
         }
 
         internal static void ProcessException(Exception exception)

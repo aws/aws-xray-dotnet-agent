@@ -73,7 +73,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         private void OnEventStart(object value)
         {
-            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
+            var request = AgentUtil.FetchPropertyUsingReflection(value, "Request");
             if (request is HttpWebRequest webRequest)
             {
                 // Skip AWS SDK Request since it is instrumented using the SDK
@@ -102,8 +102,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         private void OnEventStop(object value)
         {
-            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
-            var response = AgentUtil.FetchPropertyFromReflection(value, "Response");
+            var request = AgentUtil.FetchPropertyUsingReflection(value, "Request");
+            var response = AgentUtil.FetchPropertyUsingReflection(value, "Response");
             if (request is HttpWebRequest webRequest && response is HttpWebResponse webResponse)
             {
                 if (CurrentHttpWebRequests.TryRemove(webRequest, out var currentSubsegment))
@@ -122,8 +122,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         private void OnEventException(object value)
         {
-            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
-            var status = AgentUtil.FetchPropertyFromReflection(value, "StatusCode");
+            var request = AgentUtil.FetchPropertyUsingReflection(value, "Request");
+            var status = AgentUtil.FetchPropertyUsingReflection(value, "StatusCode");
             if (request is HttpWebRequest webRequest && status is HttpStatusCode httpStatusCode)
             {
                 if (CurrentHttpWebRequests.TryRemove(webRequest, out var currentSubsegment))

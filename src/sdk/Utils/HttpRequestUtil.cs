@@ -23,7 +23,6 @@ using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
-using Amazon.XRay.Recorder.Core.Sampling;
 
 namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 {
@@ -127,19 +126,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             var statusCode = (int)httpStatusCode;
 
             var responseInformation = new Dictionary<string, object> { ["status"] = statusCode };
-            if (statusCode >= 400 && statusCode <= 499)
-            {
-                AWSXRayRecorder.Instance.MarkError();
 
-                if (statusCode == 429)
-                {
-                    AWSXRayRecorder.Instance.MarkThrottle();
-                }
-            }
-            else if (statusCode >= 500 && statusCode <= 599)
-            {
-                AWSXRayRecorder.Instance.MarkFault();
-            }
+            AgentUtil.MarkEntityFromStatus(statusCode);
 
             responseInformation["content_length"] = contentLength;
             AWSXRayRecorder.Instance.AddHttpInformation("response", responseInformation);
@@ -158,33 +146,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         /// </summary>
         internal static void ProcessResponse(HttpStatusCode httpStatusCode, long? contentLength, Subsegment subsegment)
         {
-            if (AWSXRayRecorder.Instance.IsTracingDisabled())
-            {
-                _logger.DebugFormat("X-Ray tracing is disabled, do not process response");
-                return;
-            }
-
-            var statusCode = (int)httpStatusCode;
-
-            var responseInformation = new Dictionary<string, object> { ["status"] = statusCode };
-            if (statusCode >= 400 && statusCode <= 499)
-            {
-                subsegment.HasError = true;
-                subsegment.HasFault = false;
-
-                if (statusCode == 429)
-                {
-                    subsegment.IsThrottled = true;
-                }
-            }
-            else if (statusCode >= 500 && statusCode <= 599)
-            {
-                subsegment.HasFault = true;
-                subsegment.HasError = false;
-            }
-
-            responseInformation["content_length"] = contentLength;
-            subsegment.Http["response"] = responseInformation;
+            AWSXRayRecorder.Instance.SetEntity(subsegment);
+            ProcessResponse(httpStatusCode, contentLength);
         }
 
         /// <summary>
@@ -208,39 +171,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         /// </summary>
         internal static void EndSubsegment(Subsegment subsegment)
         {
-            if (AWSXRayRecorder.Instance.IsTracingDisabled())
-            {
-                _logger.DebugFormat("X-Ray tracing is disabled, do not end subsegment");
-                return;
-            }
-
-            if (subsegment.Sampled != SampleDecision.Sampled)
-            {
-                return;
-            }
-
-            subsegment.IsInProgress = false;
-
-            // Restore parent segment to trace context
-            if (subsegment.Parent != null)
-            {
-                AWSXRayRecorder.Instance.TraceContext.SetEntity(subsegment.Parent);
-            }
-
-            // Drop ref count
-            subsegment.Release();
-            subsegment.SetEndTimeToNow();
-
-            // Check emittable
-            if (subsegment.IsEmittable())
-            {
-                // Emit
-                AWSXRayRecorder.Instance.Emitter.Send(subsegment.RootSegment);
-            }
-            else if (AWSXRayRecorder.Instance.StreamingStrategy.ShouldStream(subsegment))
-            {
-                AWSXRayRecorder.Instance.StreamingStrategy.Stream(subsegment.RootSegment, AWSXRayRecorder.Instance.Emitter);
-            }
+            AWSXRayRecorder.Instance.SetEntity(subsegment);
+            AWSXRayRecorder.Instance.EndSubsegment();
         }
 
         /// <summary>

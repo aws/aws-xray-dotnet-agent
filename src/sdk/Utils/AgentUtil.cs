@@ -15,6 +15,11 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
+using Amazon.Runtime.Internal.Util;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Exceptions;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
 
@@ -22,6 +27,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 {
     public static class AgentUtil
     {
+        private static readonly Logger _logger = Logger.GetLogger(typeof(AgentUtil));
+
         private static readonly string EntityFramework = "EntityFramework";
 
         private static readonly string[] UserIdFormatOptions = { "user id", "username", "user", "userid" }; // case insensitive
@@ -93,9 +100,86 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         /// <summary>
         /// Fetch property from reflection
         /// </summary>
-        public static object FetchPropertyFromReflection(object value, string item)
+        public static object FetchPropertyUsingReflection(object value, string item)
         {
             return value.GetType().GetTypeInfo().GetDeclaredProperty(item)?.GetValue(value);
+        }
+
+        /// <summary>
+        /// Add AutoInstrumentation mark on the Segment or Subsegment (Lambda)
+        /// </summary>
+        public static void AddAutoInstrumentationMark()
+        {
+
+            try
+            {
+                Entity traceContext = null;
+#if !NET45
+                if (AWSXRayRecorder.IsLambda())
+                {
+                    traceContext = AWSXRayRecorder.Instance.GetEntity() as Subsegment;
+                }
+                else
+                {
+                    traceContext = AWSXRayRecorder.Instance.GetEntity() as Segment;
+                }
+#else
+                // Lambda currently doesn't support .NET framework
+                traceContext = AWSXRayRecorder.Instance.GetEntity() as Segment;
+#endif
+
+                if (traceContext == null)
+                {
+                    _logger.DebugFormat("Unable to retrieve Segment/Subsegment from trace context");
+                    return;
+                }
+
+                IDictionary<string, object> awsAttribute = traceContext.Aws;
+
+                if (awsAttribute == null)
+                {
+                    _logger.DebugFormat("Unable to retrieve AWS dictionary to set the auto instrumentation flag.");
+                }
+                else
+                {
+                    Dictionary<string, string> xrayAttribute = (Dictionary<string, string>)awsAttribute["xray"];
+
+                    if (xrayAttribute == null)
+                    {
+                        _logger.DebugFormat("Unable to retrieve X-Ray dictionary from AWS dictionary of segment.");
+                    }
+                    else
+                    {
+                        // Set attribute "auto_instrumentation":"true" in the "xray" section of the segment
+                        xrayAttribute["auto_instrumentation"] = "true";
+                    }
+                }
+            }
+            catch (EntityNotAvailableException e)
+            {
+                AWSXRayRecorder.Instance.TraceContext.HandleEntityMissing(AWSXRayRecorder.Instance, e, "Failed to get entity since it is not available in trace context while processing ASPNET Core request.");
+            }
+        }
+
+        /// <summary>
+        /// Mark Segment/Subsegment from http status code
+        /// </summary>
+        /// <param name="statusCode"></param>
+        public static void MarkEntityFromStatus(int statusCode)
+        {
+            if (statusCode >= 400 && statusCode <= 499)
+            {
+                AWSXRayRecorder.Instance.MarkError();
+
+                if (statusCode == 429)
+                {
+                    AWSXRayRecorder.Instance.MarkThrottle();
+                }
+            }
+            else if (statusCode >= 500 && statusCode <= 599)
+            {
+                AWSXRayRecorder.Instance.MarkFault();
+            }
         }
     }
 }

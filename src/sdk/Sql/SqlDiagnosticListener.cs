@@ -85,7 +85,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         {
             // This class serves for tracing Sql command from both System.Data.SqlClient and Microsoft.Data.SqlClient and using fetch property works
             // fot both of these two cases 
-            var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
+            var command = AgentUtil.FetchPropertyUsingReflection(value, "Command");
             if (command is DbCommand dbcommand)
             {
                 // Skip processing EntityFramework Core request
@@ -101,7 +101,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         {
             // This class serves for tracing Sql command from both System.Data.SqlClient and Microsoft.Data.SqlClient and using fetch property works
             // fot both of these two cases 
-            var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
+            var command = AgentUtil.FetchPropertyUsingReflection(value, "Command");
             if (command is DbCommand dbcommand)
             {
                 if (CurrentDbCommands.TryRemove(dbcommand, out _))
@@ -115,8 +115,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         {
             // This class serves for tracing Sql command from both System.Data.SqlClient and Microsoft.Data.SqlClient and using fetch property works
             // fot both of these two cases 
-            var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
-            var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception");
+            var command = AgentUtil.FetchPropertyUsingReflection(value, "Command");
+            var exc = AgentUtil.FetchPropertyUsingReflection(value, "Exception");
             if (command is DbCommand dbcommand && exc is Exception exception)
             {
                 if (CurrentDbCommands.TryRemove(dbcommand, out _))

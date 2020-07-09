@@ -72,7 +72,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStart(object value)
         {
-            var context = AgentUtil.FetchPropertyFromReflection(value, "HttpContext");
+            var context = AgentUtil.FetchPropertyUsingReflection(value, "HttpContext");
             if (context is HttpContext httpContext)
             {
                 AspNetCoreRequestUtil.ProcessRequest(httpContext);
@@ -81,7 +81,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStop(object value)
         {
-            var context = AgentUtil.FetchPropertyFromReflection(value, "HttpContext");
+            var context = AgentUtil.FetchPropertyUsingReflection(value, "HttpContext");
             if (context is HttpContext httpContext)
             {
                 AspNetCoreRequestUtil.ProcessResponse(httpContext);
@@ -91,7 +91,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         private void OnEventException(object value)
         {
             // The value passed in is not castable, use fetch from reflection.
-            var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception"); 
+            var exc = AgentUtil.FetchPropertyUsingReflection(value, "Exception"); 
             if (exc is Exception exception)
             {
                 AspNetCoreRequestUtil.ProcessException(exception);

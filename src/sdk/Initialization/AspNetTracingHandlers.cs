@@ -35,12 +35,9 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         {
             if (options.TraceHttpRequests)
             {
-                var subscription = new List<DiagnosticListenerBase>()
-                {
-                    new HttpOutDiagnosticListenerNetframework()
-                };
+                DiagnosticListenerBase[] subscriptions = { new HttpOutDiagnosticListenerNetframework() };
 
-                DiagnosticListener.AllListeners.Subscribe(new DiagnosticListenerObserver(subscription));
+                DiagnosticListener.AllListeners.Subscribe(new DiagnosticListenerObserver(subscriptions));
             }
 
             if (options.TraceSqlRequests)

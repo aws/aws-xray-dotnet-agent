@@ -50,7 +50,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         {
             foreach (var _diagnosticListener in _diagnosticListeners)
             {
-                if (diagnosticListener.Name == _diagnosticListener?.Name)
+                if (diagnosticListener.Name == _diagnosticListener.Name)
                 {
                     var subscription = diagnosticListener.Subscribe(_diagnosticListener);
                     _subscriptions.Add(subscription);

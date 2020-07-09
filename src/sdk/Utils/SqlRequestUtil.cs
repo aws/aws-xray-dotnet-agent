@@ -22,7 +22,6 @@ using Amazon.XRay.Recorder.Core.Internal.Entities;
 #if NET45
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 #endif
-using Amazon.XRay.Recorder.Core.Sampling;
 using System;
 using System.Data.Common;
 using System.Diagnostics.Tracing;
@@ -138,40 +137,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         /// </summary>
         internal static void EndSubsegment(Subsegment subsegment)
         {
-            var recorder = AWSXRayRecorder.Instance;
-            if (recorder.IsTracingDisabled())
-            {
-                _logger.DebugFormat("X-Ray tracing is disabled, do not end subsegment");
-                return;
-            }
-
-            if (subsegment.Sampled != SampleDecision.Sampled)
-            {
-                return;
-            }
-
-            subsegment.IsInProgress = false;
-
-            // Restore parent segment to trace context
-            if (subsegment.Parent != null)
-            {
-                recorder.TraceContext.SetEntity(subsegment.Parent);
-            }
-
-            // Drop ref count
-            subsegment.Release();
-            subsegment.SetEndTimeToNow();
-
-            // Check emittable
-            if (subsegment.IsEmittable())
-            {
-                // Emit
-                recorder.Emitter.Send(subsegment.RootSegment);
-            }
-            else if (recorder.StreamingStrategy.ShouldStream(subsegment))
-            {
-                recorder.StreamingStrategy.Stream(subsegment.RootSegment, recorder.Emitter);
-            }
+            AWSXRayRecorder.Instance.SetEntity(subsegment);
+            AWSXRayRecorder.Instance.EndSubsegment();
         }
 
         /// <summary>

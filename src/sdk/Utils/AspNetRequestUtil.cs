@@ -112,50 +112,19 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             _recorder.BeginSegment(segmentName, traceHeader.RootTraceId, traceHeader.ParentId, samplingResponse, timestamp);
 
             // Mark the segment as auto-instrumented
-            AddAutoInstrumentationMark();
+            AgentUtil.AddAutoInstrumentationMark();
 
             if (!AWSXRayRecorder.Instance.IsTracingDisabled())
             {
-                Dictionary<string, object> requestAttributes = new Dictionary<string, object>();
-                ProcessRequestAttributes(request, requestAttributes);
+                var requestAttributes = ProcessRequestAttributes(request);
                 _recorder.AddHttpInformation("request", requestAttributes);
             }
         }
 
-        private static void AddAutoInstrumentationMark()
+        private static Dictionary<string, object> ProcessRequestAttributes(HttpRequest request)
         {
-            try
-            {
-                var segment = _recorder.GetEntity() as Segment;
-                IDictionary<string, object> awsAttribute = segment.Aws;
+            var requestAttributes = new Dictionary<string, object>();
 
-                if (awsAttribute == null)
-                {
-                    _logger.DebugFormat("Unable to retrieve AWS dictionary to set the auto instrumentation flag.");
-                }
-                else
-                {
-                    Dictionary<string, string> xrayAttribute = (Dictionary<string, string>)awsAttribute["xray"];
-
-                    if (xrayAttribute == null)
-                    {
-                        _logger.DebugFormat("Unable to retrieve X-Ray dictionary from AWS dictionary of segment.");
-                    }
-                    else
-                    {
-                        // Set attribute "auto_instrumentation":"true" in the "xray" section of the segment
-                        xrayAttribute["auto_instrumentation"] = "true";
-                    }
-                }
-            }
-            catch (EntityNotAvailableException e)
-            {
-                _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Failed to get entity since it is not available in trace context while processing ASPNET request.");
-            }
-        }
-
-        private static void ProcessRequestAttributes(HttpRequest request, Dictionary<string, object> requestAttributes)
-        {
             requestAttributes["url"] = request.Url.AbsoluteUri;
             requestAttributes["user_agent"] = request.UserAgent;
             requestAttributes["method"] = request.HttpMethod;
@@ -170,6 +139,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
                 requestAttributes["client_ip"] = xForwardedFor;
                 requestAttributes["x_forwarded_for"] = true;
             }
+
+            return requestAttributes;
         }
 
         private static object GetClientIpAddress(HttpRequest request)
@@ -221,8 +192,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 
             if (!AWSXRayRecorder.Instance.IsTracingDisabled() && response != null)
             {
-                Dictionary<string, object> responseAttributes = new Dictionary<string, object>();
-                ProcessResponseAttributes(response, responseAttributes);
+                var responseAttributes = ProcessResponseAttributes(response);
                 _recorder.AddHttpInformation("response", responseAttributes);
             }
 
@@ -249,24 +219,16 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             }
         }
 
-        private static void ProcessResponseAttributes(HttpResponse response, Dictionary<string, object> responseAttributes)
+        private static Dictionary<string, object> ProcessResponseAttributes(HttpResponse response)
         {
+            var responseAttributes = new Dictionary<string, object>();
+
             int statusCode = (int)response.StatusCode;
             responseAttributes["status"] = statusCode;
 
-            if (statusCode >= 400 && statusCode <= 499)
-            {
-                _recorder.MarkError();
+            AgentUtil.MarkEntityFromStatus(statusCode);
 
-                if (statusCode == 429)
-                {
-                    _recorder.MarkThrottle();
-                }
-            }
-            else if (statusCode >= 500 && statusCode <= 599)
-            {
-                _recorder.MarkFault();
-            }
+            return responseAttributes;
         }
 
         private static void SetSamplingDecision(TraceHeader traceHeader)

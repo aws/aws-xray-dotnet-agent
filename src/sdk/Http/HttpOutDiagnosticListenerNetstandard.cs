@@ -69,7 +69,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         private void OnEventStart(object value)
         {
             // The value passed in is not castable, use fetch from reflection instead.
-            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
+            var request = AgentUtil.FetchPropertyUsingReflection(value, "Request");
             if (request is HttpRequestMessage httpRequestMessage)
             {
                 // Skip AWS SDK Request since it is instrumented using the SDK
@@ -83,8 +83,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         private void OnEventStop(object value)
         {
             // The value passed in is not castable, use fetch from reflection instead.
-            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
-            var response = AgentUtil.FetchPropertyFromReflection(value, "Response");
+            var request = AgentUtil.FetchPropertyUsingReflection(value, "Request");
+            var response = AgentUtil.FetchPropertyUsingReflection(value, "Response");
             if (request is HttpRequestMessage httpRequestMessage && response is HttpResponseMessage httpResponseMessage)
             {
                 if (CurrentHttpRequestMessages.TryRemove(httpRequestMessage, out _))
@@ -99,8 +99,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         private void OnEventException(object value)
         {
             // The value passed in is not castable, use fetch from reflection instead.
-            var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
-            var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception");
+            var request = AgentUtil.FetchPropertyUsingReflection(value, "Request");
+            var exc = AgentUtil.FetchPropertyUsingReflection(value, "Exception");
             if (request is HttpRequestMessage httpRequestMessage && exc is Exception exception)
             {
                 if (CurrentHttpRequestMessages.TryRemove(httpRequestMessage, out _))

@@ -38,20 +38,28 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
             var serviceName = xrayAutoInstrumentationOptions.ServiceName;
 
-            var subscriptions = new List<DiagnosticListenerBase>()
-            { 
-                // Subscribe diagnostic listener for tracing Asp.Net Core request
-                new AspNetCoreDiagnosticListener(serviceName),
-                
-                // Subscribe diagnostic listener for tracing Http outgoing request
-                xrayAutoInstrumentationOptions.TraceHttpRequests ? new HttpOutDiagnosticListenerNetstandard() : null,
-                
-                // Subscribe diagnostic listener for tracing Sql request
-                xrayAutoInstrumentationOptions.TraceSqlRequests ? new SqlDiagnosticListener() : null,
-                
-                // Subscribe diagnostic listener for tracing EF Core request
-                xrayAutoInstrumentationOptions.TraceEFRequests ? new EntityFrameworkCoreDiagnosticListener() : null
-            };
+            var subscriptions = new List<DiagnosticListenerBase>();
+
+            // Subscribe diagnostic listener for tracing Asp.Net Core request
+            subscriptions.Add(new AspNetCoreDiagnosticListener(serviceName));
+
+            // Subscribe diagnostic listener for tracing Http outgoing request
+            if (xrayAutoInstrumentationOptions.TraceHttpRequests)
+            {
+                subscriptions.Add(new HttpOutDiagnosticListenerNetstandard());
+            }
+
+            // Subscribe diagnostic listener for tracing Sql request
+            if (xrayAutoInstrumentationOptions.TraceSqlRequests)
+            {
+                subscriptions.Add(new SqlDiagnosticListener());
+            }
+
+            // Subscribe diagnostic listener for tracing EF Core request
+            if (xrayAutoInstrumentationOptions.TraceEFRequests)
+            {
+                subscriptions.Add(new EntityFrameworkCoreDiagnosticListener());
+            }
 
             DiagnosticListener.AllListeners.Subscribe(new DiagnosticListenerObserver(subscriptions));
             
