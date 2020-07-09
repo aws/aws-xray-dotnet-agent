@@ -154,10 +154,15 @@ HRESULT STDMETHODCALLTYPE CorProfiler::JITCompilationStarted(FunctionID function
 
     ILWriter* ilWriter = new ILWriter(this->corProfilerInfo, functionInfo);
 
+    if (ilWriter == nullptr)
+    {
+        return E_FAIL;
+    }
+
     if (ilWriter->Write())
     {
         hasInserted = true;
-    } 
+    }
 
     return S_OK;
 }

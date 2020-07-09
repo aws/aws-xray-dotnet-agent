@@ -28,12 +28,12 @@ HRESULT STDMETHODCALLTYPE ClassFactory::QueryInterface(REFIID riid, void **ppvOb
 
 ULONG STDMETHODCALLTYPE ClassFactory::AddRef()
 {
-    return std::atomic_fetch_add(&this->refCount, 1) + 1;
+    return ++this->refCount;
 }
 
 ULONG STDMETHODCALLTYPE ClassFactory::Release()
 {
-    int count = std::atomic_fetch_sub(&this->refCount, 1) - 1;
+    int count = --this->refCount;
     if (count <= 0)
     {
         delete this;
