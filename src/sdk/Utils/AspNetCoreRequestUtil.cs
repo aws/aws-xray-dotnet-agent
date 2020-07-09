@@ -69,11 +69,10 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 
             if (request.Headers.TryGetValue(TraceHeader.HeaderKey, out StringValues headerValue))
             {
-                if (headerValue.ToArray().Length >= 1)
-                    headerString = headerValue.ToArray()[0];
+                if (headerValue.Count >= 1)
+                    headerString = headerValue[0];
             }
 
-            // Trace header doesn't exist, which means this is the root node. Create a new traceId and inject the trace header.
             if (!TraceHeader.TryParse(headerString, out TraceHeader traceHeader))
             {
                 _logger.DebugFormat("Trace header doesn't exist or not valid : ({0}). Injecting a new one.", headerString);
@@ -113,8 +112,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
 
             if (!AWSXRayRecorder.Instance.IsTracingDisabled())
             {
-                var requestAttributes = new Dictionary<string, object>();
-                PopulateRequestAttributes(request, requestAttributes);
+                var requestAttributes = PopulateRequestAttributes(request);
                 _recorder.AddHttpInformation("request", requestAttributes);
             }
 
@@ -159,8 +157,10 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             }
         }
 
-        private static void PopulateRequestAttributes(HttpRequest request, Dictionary<string, object> requestAttributes)
+        private static Dictionary<string, object> PopulateRequestAttributes(HttpRequest request)
         {
+            var requestAttributes = new Dictionary<string, object>();
+
             requestAttributes["url"] = GetUrl(request);
             requestAttributes["method"] = request.Method;
             string xForwardedFor = GetXForwardedFor(request);
@@ -183,15 +183,17 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
             {
                 requestAttributes["user_agent"] = request.Headers[HeaderNames.UserAgent].ToString();
             }
+
+            return requestAttributes;
         }
 
         private static bool IsOuterProxy(HttpRequest request)
         {
             if (request.HttpContext.Request.Headers.TryGetValue(X_FORWARDED_FOR, out StringValues headerValue))
             {
-                string[] ipEndPoints = headerValue.ToString().Split(',');
-                return ipEndPoints.Length > 1;
+                return headerValue.ToString().IndexOf(',') >= 0;
             }
+
             return false;
         }
 

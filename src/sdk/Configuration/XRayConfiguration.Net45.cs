@@ -25,24 +25,16 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     /// </summary>
     public class XRayConfiguration
     {
-        private const string ServiceNameKey = "ServiceName";
-        private const string DaemonAddressKey = "DaemonAddress";
-        private const string TraceHttpRequestsKey = "TraceHttpRequests";
-        private const string TraceAWSRequestsKey = "TraceAWSRequests";
-        private const string TraceSqlRequestsKey = "TraceSqlRequests";
-        private const string TraceEFRequestsKey = "TraceEFRequests";
-
         public static XRayAutoInstrumentationOptions Register()
         {
-            var xrayAutoInstrumentationOptions = new XRayAutoInstrumentationOptions
-            {
-                ServiceName = GetSettingServiceName(ServiceNameKey),
-                DaemonAddress = GetSettingDaemonAddress(DaemonAddressKey),
-                TraceHttpRequests = GetSettingBool(TraceHttpRequestsKey),
-                TraceAWSRequests = GetSettingBool(TraceAWSRequestsKey),
-                TraceSqlRequests = GetSettingBool(TraceSqlRequestsKey),
-                TraceEFRequests = GetSettingBool(TraceEFRequestsKey)
-            };
+            var serviceName = GetSettingServiceName("ServiceName");
+            var daemonAddress = GetSettingDaemonAddress("DaemonAddress");
+            var traceHttpRequests = GetSettingBool("TraceHttpRequests");
+            var traceAWSRequests = GetSettingBool("TraceAWSRequests");
+            var traceSqlRequests = GetSettingBool("TraceSqlRequests");
+            var traceEFRequests = GetSettingBool("TraceEFRequests");
+
+            var xrayAutoInstrumentationOptions = new XRayAutoInstrumentationOptions(serviceName, daemonAddress, traceHttpRequests, traceAWSRequests, traceSqlRequests, traceEFRequests);
 
             return xrayAutoInstrumentationOptions;
         }

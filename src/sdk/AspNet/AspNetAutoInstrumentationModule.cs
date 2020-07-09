@@ -32,7 +32,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     {
         private HttpApplication currentHttpApplication;
         
-        private static readonly ConcurrentDictionary<HttpApplication, byte> CurrentHttpModules = new ConcurrentDictionary<HttpApplication, byte>();
+        private static readonly ConcurrentDictionary<HttpApplication, byte> ActiveHttpApplications = new ConcurrentDictionary<HttpApplication, byte>();
 
         static AspNetAutoInstrumentationModule()
         {
@@ -76,19 +76,28 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private static byte[] LoadBytesFromAssembly(string path)
         {
+            byte[] fileBytes;
             using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                using (var memoryStream = new MemoryStream())
+                int length = (int)fileStream.Length;
+                fileBytes = new byte[length];
+
+                int count;
+                int offset = 0;
+
+                // Make sure read all bytes
+                while ((count = fileStream.Read(fileBytes, offset, length-offset)) > 0)
                 {
-                    fileStream.CopyTo(memoryStream);
-                    return memoryStream.ToArray();
+                    offset += count;
                 }
             }
+
+            return fileBytes;
         }
 
         public void Init(HttpApplication httpApplication)
         {
-            if (CurrentHttpModules.TryAdd(httpApplication, 0))
+            if (ActiveHttpApplications.TryAdd(httpApplication, 0))
             {
                 currentHttpApplication = httpApplication;
                 currentHttpApplication.BeginRequest += AspNetRequestUtil.ProcessHTTPRequest;
@@ -101,7 +110,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         {
             if (currentHttpApplication != null)
             {
-                CurrentHttpModules.TryRemove(currentHttpApplication, out _);
+                ActiveHttpApplications.TryRemove(currentHttpApplication, out _);
                 currentHttpApplication = null;
             }
         }

@@ -29,13 +29,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     /// </summary>
     public static class XRayConfiguration
     {
-        private const string ServiceNameKey = "ServiceName";
-        private const string DaemonAddressKey = "DaemonAddress";
-        private const string TraceHttpRequestsKey = "TraceHttpRequests";
-        private const string TraceAWSRequestsKey = "TraceAWSRequests";
-        private const string TraceSqlRequestsKey = "TraceSqlRequests";
-        private const string TraceEFRequestsKey = "TraceEFRequests";
-
+       
         private static readonly Logger _logger = Logger.GetLogger(typeof(XRayConfiguration));
 
         /// <summary>
@@ -74,22 +68,23 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// </summary>
         public static XRayAutoInstrumentationOptions GetXRayAutoInstrumentationOptions(IConfiguration configuration)
         {
-            var xrayAutoInstrumentationOptions = new XRayAutoInstrumentationOptions();
 
             IConfiguration xraySection = configuration?.GetSection("XRay");
 
             if (xraySection == null)
             {
-                return xrayAutoInstrumentationOptions;
+                return new XRayAutoInstrumentationOptions();
             }
 
             // Get Auto-Instrumentation related configuration items from appsetting.json file
-            xrayAutoInstrumentationOptions.ServiceName = GetSettingServiceName(ServiceNameKey, xraySection);
-            xrayAutoInstrumentationOptions.DaemonAddress = GetSettingDaemonAddress(DaemonAddressKey, xraySection);
-            xrayAutoInstrumentationOptions.TraceHttpRequests = GetSettingBool(TraceHttpRequestsKey, xraySection);
-            xrayAutoInstrumentationOptions.TraceAWSRequests = GetSettingBool(TraceAWSRequestsKey, xraySection);
-            xrayAutoInstrumentationOptions.TraceSqlRequests = GetSettingBool(TraceSqlRequestsKey, xraySection);
-            xrayAutoInstrumentationOptions.TraceEFRequests = GetSettingBool(TraceEFRequestsKey, xraySection);
+            var serviceName = GetSettingServiceName("ServiceName", xraySection);
+            var daemonAddress = GetSettingDaemonAddress("DaemonAddress", xraySection);
+            var traceHttpRequests = GetSettingBool("TraceHttpRequests", xraySection);
+            var traceAWSRequests = GetSettingBool("TraceAWSRequests", xraySection);
+            var traceSqlRequests = GetSettingBool("TraceSqlRequests", xraySection);
+            var traceEFRequests = GetSettingBool("TraceEFRequests", xraySection);
+
+            var xrayAutoInstrumentationOptions = new XRayAutoInstrumentationOptions(serviceName, daemonAddress, traceHttpRequests, traceAWSRequests, traceSqlRequests, traceEFRequests);
 
             return xrayAutoInstrumentationOptions;
         }

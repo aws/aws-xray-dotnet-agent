@@ -90,7 +90,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventException(object value)
         {
-            var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception");
+            // The value passed in is not castable, use fetch from reflection.
+            var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception"); 
             if (exc is Exception exception)
             {
                 AspNetCoreRequestUtil.ProcessException(exception);

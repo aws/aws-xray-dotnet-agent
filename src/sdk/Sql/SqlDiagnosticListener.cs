@@ -83,6 +83,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStart(object value)
         {
+            // This class serves for tracing Sql command from both System.Data.SqlClient and Microsoft.Data.SqlClient and using fetch property works
+            // fot both of these two cases 
             var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
             if (command is DbCommand dbcommand)
             {
@@ -97,6 +99,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStop(object value)
         {
+            // This class serves for tracing Sql command from both System.Data.SqlClient and Microsoft.Data.SqlClient and using fetch property works
+            // fot both of these two cases 
             var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
             if (command is DbCommand dbcommand)
             {
@@ -109,6 +113,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventException(object value)
         {
+            // This class serves for tracing Sql command from both System.Data.SqlClient and Microsoft.Data.SqlClient and using fetch property works
+            // fot both of these two cases 
             var command = AgentUtil.FetchPropertyFromReflection(value, "Command");
             var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception");
             if (command is DbCommand dbcommand && exc is Exception exception)

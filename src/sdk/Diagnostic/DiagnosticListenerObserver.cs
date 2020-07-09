@@ -26,10 +26,10 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
     /// </summary>
     public class DiagnosticListenerObserver : IObserver<DiagnosticListener>, IDisposable
     {
-        private readonly List<DiagnosticListenerBase> _diagnosticListeners;
+        private readonly IList<DiagnosticListenerBase> _diagnosticListeners;
         private readonly List<IDisposable> _subscriptions = new List<IDisposable>();
 
-        public DiagnosticListenerObserver(List<DiagnosticListenerBase> diagnosticListeners)
+        public DiagnosticListenerObserver(IList<DiagnosticListenerBase> diagnosticListeners)
         {
             _diagnosticListeners = diagnosticListeners;
         }
@@ -54,6 +54,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
                 {
                     var subscription = diagnosticListener.Subscribe(_diagnosticListener);
                     _subscriptions.Add(subscription);
+                    break;
                 }
             }
         }

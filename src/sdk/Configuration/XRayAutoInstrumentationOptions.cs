@@ -26,32 +26,32 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// <summary>
         /// Service name of instrumented Asp.Net or Asp.Net Core application
         /// </summary>
-        public string ServiceName { get; set; } = "DefaultService";
+        public string ServiceName { get; } = "DefaultService";
 
         /// <summary>
         /// Daemon address
         /// </summary>
-        public string DaemonAddress { get; set; } = "127.0.0.1:2000";
+        public string DaemonAddress { get; } = "127.0.0.1:2000";
 
         /// <summary>
         /// Enable tracing Http request
         /// </summary>
-        public bool TraceHttpRequests { get; set; } = true;
+        public bool TraceHttpRequests { get; } = true;
 
         /// <summary>
         /// Enable tracing AWS request
         /// </summary>
-        public bool TraceAWSRequests { get; set; } = true;
+        public bool TraceAWSRequests { get; } = true;
 
         /// <summary>
         /// Enable tracing Sql request
         /// </summary>
-        public bool TraceSqlRequests { get; set; } = true;
+        public bool TraceSqlRequests { get; } = true;
 
         /// <summary>
         /// Enable tracing Entity Framework request
         /// </summary>
-        public bool TraceEFRequests { get; set; } = true;
+        public bool TraceEFRequests { get; } = true;
 
         /// <summary>
         /// Default constructor

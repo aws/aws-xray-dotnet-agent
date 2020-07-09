@@ -68,6 +68,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStart(object value)
         {
+            // The value passed in is not castable, use fetch from reflection instead.
             var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
             if (request is HttpRequestMessage httpRequestMessage)
             {
@@ -81,6 +82,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventStop(object value)
         {
+            // The value passed in is not castable, use fetch from reflection instead.
             var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
             var response = AgentUtil.FetchPropertyFromReflection(value, "Response");
             if (request is HttpRequestMessage httpRequestMessage && response is HttpResponseMessage httpResponseMessage)
@@ -96,6 +98,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         private void OnEventException(object value)
         {
+            // The value passed in is not castable, use fetch from reflection instead.
             var request = AgentUtil.FetchPropertyFromReflection(value, "Request");
             var exc = AgentUtil.FetchPropertyFromReflection(value, "Exception");
             if (request is HttpRequestMessage httpRequestMessage && exc is Exception exception)
