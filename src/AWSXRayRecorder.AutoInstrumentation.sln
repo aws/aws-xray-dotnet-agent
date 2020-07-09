@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.AutoInstrumentation", "sdk\AWSXRayRecorder.AutoInstrumentation.csproj", "{579F41A1-F0B1-475D-98E0-3B237411DEE5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.AutoInstrumentation.Unittests", "test\AWSXRayRecorder.AutoInstrumentation.Unittests.csproj", "{D95AB7C9-4384-45BB-9A38-BCA3B86435BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{579F41A1-F0B1-475D-98E0-3B237411DEE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{579F41A1-F0B1-475D-98E0-3B237411DEE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{579F41A1-F0B1-475D-98E0-3B237411DEE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{579F41A1-F0B1-475D-98E0-3B237411DEE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D95AB7C9-4384-45BB-9A38-BCA3B86435BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D95AB7C9-4384-45BB-9A38-BCA3B86435BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D95AB7C9-4384-45BB-9A38-BCA3B86435BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D95AB7C9-4384-45BB-9A38-BCA3B86435BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D2D53B22-B7B3-4E9F-A71B-3FB02CD80043}
+	EndGlobalSection
+EndGlobal

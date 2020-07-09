@@ -101,7 +101,7 @@ Note:
 ```
 <system.webServer>
  <modules> 
-  <add name="AWSXRayTracingModule" type="Amazon.XRay.Recorder.AutoInstrumentation.AspNetAutoInstrumentationModule,AWSXRayRecorder.AutoInstrumentation,Version=1.0.0.0,Culture=neutral,PublicKeyToken=d427001f96b0d0b6" /> 
+  <add name="AWSXRayTracingModule" type="Amazon.XRay.Recorder.AutoInstrumentation.AspNetAutoInstrumentationModule,AWSXRayRecorder.AutoInstrumentation,Version=2.9.0.0,Culture=neutral,PublicKeyToken=d427001f96b0d0b6" /> 
  </modules>
 </system.webServer>
 ```
@@ -113,7 +113,7 @@ Note:
 
 Instead of using profiler, you may choose to manually instrument AWS X-Ray SDK into your Asp.Net Core application.
 
-1. Import [AWSXRayRecorder.AutoInstrumentation]() Nuget package into your project.
+1. Import `AWSXRayRecorder.AutoInstrumentation` Nuget package into your project.
 
 2. Add the following method into any method in `startup.cs` or `program.cs` file
 ```
