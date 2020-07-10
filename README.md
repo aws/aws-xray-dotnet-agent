@@ -54,7 +54,15 @@ Note:
 
 ## Installation
 
-The AWS X-Ray Auto-Instrumentation SDK for .NET (.netframework 4.5 and above) and .NET Core (.netstandard 2.0 and above) is in the form of Nuget package. You can install the package from [Nuget](https://www.nuget.org/) gallery or from Visual Studio editor. Search `AWSXRayRecorder.AutoInstrumentation`.
+### Minimum Requirements
+
+For building `AWSXRayRecorder.AutoInstrumentation` package, you need to install **Visual Studio 2019**.
+
+For building profiler, you need to have workloads **.NET desktop development** and **Desktop development with C++** installed within **Visual Studio 2019**.
+
+### Development
+
+Currently, the `AWSXRayRecorder.AutoInstrumentation` Nuget hasn’t been released yet (please stay tuned!), so in case that you need to add it to you application, you can git clone this repo, reference `AWSXRayRecorder.AutoInstrumentation` package to your application and rebuild. 
 
 ### Automatic Instrumentation
 
@@ -62,8 +70,8 @@ The AWS X-Ray Auto-Instrumentation SDK for .NET (.netframework 4.5 and above) an
 
 ##### Asp.Net Core
 
-1. Import `AWSXRayRecorder.AutoInstrumentation` Nuget package into your project and **rebuild**. 
-2. Download and run AWS X-Ray .NET Agent Installer.
+1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**. 
+2. Download and run AWS X-Ray .NET Agent Installer ([x64](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
 3. Restart IIS and launch your application.
 ```
 iisreset
@@ -71,7 +79,7 @@ iisreset
 
 ##### Asp.Net
 
-1. Download and run AWS X-Ray .NET Agent Installer.
+1. Download and run AWS X-Ray .NET Agent Installer ([x64](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
 3. Restart IIS and launch your application.
 ```
 iisreset
@@ -81,8 +89,8 @@ iisreset
 
 ##### Asp.Net Core
 
-1. Import `AWSXRayRecorder.AutoInstrumentation` Nuget package into your project and **rebuild**.
-2. Download and install AWS X-Ray .NET Agent Installer.
+1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**.
+2. Download and install AWS X-Ray .NET Agent Installer ([x64](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
 3. Launch your application as follows.
 ```
 SET CORECLR_PROFILER = {AE47A175-390A-4F13-84CB-7169CEBF064A}
@@ -96,7 +104,7 @@ Note:
 
 ##### Asp.Net
 
-1. Import `AWSXRayRecorder.AutoInstrumentation` Nuget package into your project and **rebuild**.
+1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**.
 2. Add the following snippet into the `web.config` file.
 ```
 <system.webServer>
@@ -113,18 +121,12 @@ Note:
 
 Instead of using profiler, you may choose to manually instrument AWS X-Ray SDK into your Asp.Net Core application.
 
-1. Import `AWSXRayRecorder.AutoInstrumentation` Nuget package into your project.
+1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project.
 
 2. Add the following method into any method in `startup.cs` or `program.cs` file
 ```
 Amazon.XRay.Recorder.AutoInstrumentation.Initialize.AddXRay();
 ```
-
-## Development
-
-### Minimum Requirements
-
-For building packages locally, you need to have Visual Studio 2019 installed with workloads **.NET desktop development** and **Desktop development with C++**.
 
 ## Getting Help
 
