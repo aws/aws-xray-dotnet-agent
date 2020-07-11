@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include "ClassFactory.h"
+#include "assert.h"
 
 BOOL STDMETHODCALLTYPE DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
@@ -23,6 +24,8 @@ extern "C" HRESULT STDMETHODCALLTYPE DllGetClassObject(REFCLSID rclsid, REFIID r
     {
         return E_FAIL;
     }
+
+    assert(riid == IID_IUnknown || riid == IID_IClassFactory);
 
     return factory->QueryInterface(riid, ppv);
 }

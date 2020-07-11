@@ -3,6 +3,7 @@
 
 #include "ClassFactory.h"
 #include "CorProfiler.h"
+#include "assert.h"
 
 ClassFactory::ClassFactory() : refCount(1)
 {
@@ -55,6 +56,16 @@ HRESULT STDMETHODCALLTYPE ClassFactory::CreateInstance(IUnknown *pUnkOuter, REFI
     {
         return E_FAIL;
     }
+
+    assert(riid == __uuidof(ICorProfilerCallback8) ||
+           riid == __uuidof(ICorProfilerCallback7) ||
+           riid == __uuidof(ICorProfilerCallback6) ||
+           riid == __uuidof(ICorProfilerCallback5) ||
+           riid == __uuidof(ICorProfilerCallback4) ||
+           riid == __uuidof(ICorProfilerCallback3) ||
+           riid == __uuidof(ICorProfilerCallback2) ||
+           riid == __uuidof(ICorProfilerCallback) ||
+           riid == IID_IUnknown);
 
     return profiler->QueryInterface(riid, ppvObject);
 }
