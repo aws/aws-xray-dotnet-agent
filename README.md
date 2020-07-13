@@ -68,18 +68,10 @@ Currently, the `AWSXRayRecorder.AutoInstrumentation` Nuget hasn’t been release
 
 #### Internet Information Services (IIS)
 
-##### Asp.Net Core
+##### Asp.Net Core & Asp.Net
 
 1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**. 
 2. Download and run AWS X-Ray .NET Agent Installer ([x64](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
-3. Restart IIS and launch your application.
-```
-iisreset
-```
-
-##### Asp.Net
-
-1. Download and run AWS X-Ray .NET Agent Installer ([x64](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
 3. Restart IIS and launch your application.
 ```
 iisreset
@@ -143,4 +135,4 @@ The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-
 
 ## License
 
-The AWS X-Ray SDK DotNet Agent is licensed under the Apache 2.0 License. See LICENSE and NOTICE.txt for more information.
+The AWS X-Ray SDK DotNet Agent is licensed under the Apache 2.0 License. See LICENSE for more information.
