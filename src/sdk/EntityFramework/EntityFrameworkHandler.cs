@@ -17,6 +17,7 @@
 
 #if NET45
 using Amazon.XRay.Recorder.AutoInstrumentation.Utils;
+using System;
 using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 
@@ -35,8 +36,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// <param name="interceptionContext">An instance of <see cref="DbCommandInterceptionContext"/>.</param>
         public void NonQueryExecuting(DbCommand command, DbCommandInterceptionContext<int> interceptionContext)
         {
-            SqlRequestUtil.BeginSubsegment(command);
-            SqlRequestUtil.ProcessCommand(command);
+            OnCommandStart(command);
         }
 
         /// <summary>
@@ -46,12 +46,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// <param name="interceptionContext">An instance of <see cref="DbCommandInterceptionContext"/>.</param>
         public void NonQueryExecuted(DbCommand command, DbCommandInterceptionContext<int> interceptionContext)
         {
-            if (interceptionContext.Exception != null)
-            {
-                SqlRequestUtil.ProcessException(interceptionContext.Exception);
-            }
-
-            SqlRequestUtil.EndSubsegment();
+            OnCommandStop(interceptionContext.Exception);
         }
 
         /// <summary>
@@ -61,8 +56,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// <param name="interceptionContext">An instance of <see cref="DbCommandInterceptionContext"/>.</param>
         public void ReaderExecuting(DbCommand command, DbCommandInterceptionContext<DbDataReader> interceptionContext)
         {
-            SqlRequestUtil.BeginSubsegment(command);
-            SqlRequestUtil.ProcessCommand(command);
+            OnCommandStart(command);
         }
 
         /// <summary>
@@ -72,12 +66,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// <param name="interceptionContext">An instance of <see cref="DbCommandInterceptionContext"/>.</param>
         public void ReaderExecuted(DbCommand command, DbCommandInterceptionContext<DbDataReader> interceptionContext)
         {
-            if (interceptionContext.Exception != null)
-            {
-                SqlRequestUtil.ProcessException(interceptionContext.Exception);
-            }
-            
-            SqlRequestUtil.EndSubsegment();
+            OnCommandStop(interceptionContext.Exception);
         }
 
         /// <summary>
@@ -87,8 +76,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// <param name="interceptionContext">An instance of <see cref="DbCommandInterceptionContext"/>.</param>
         public void ScalarExecuting(DbCommand command, DbCommandInterceptionContext<object> interceptionContext)
         {
-            SqlRequestUtil.BeginSubsegment(command);
-            SqlRequestUtil.ProcessCommand(command);
+            OnCommandStart(command);
         }
 
         /// <summary>
@@ -98,9 +86,20 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
         /// <param name="interceptionContext">An instance of <see cref="DbCommandInterceptionContext"/>.</param>
         public void ScalarExecuted(DbCommand command, DbCommandInterceptionContext<object> interceptionContext)
         {
-            if (interceptionContext.Exception != null)
+            OnCommandStop(interceptionContext.Exception);
+        }
+
+        private void OnCommandStart(DbCommand command)
+        {
+            SqlRequestUtil.BeginSubsegment(command);
+            SqlRequestUtil.ProcessCommand(command);
+        }
+
+        private void OnCommandStop(Exception exception)
+        {
+            if (exception != null)
             {
-                SqlRequestUtil.ProcessException(interceptionContext.Exception);
+                SqlRequestUtil.ProcessException(exception);
             }
 
             SqlRequestUtil.EndSubsegment();

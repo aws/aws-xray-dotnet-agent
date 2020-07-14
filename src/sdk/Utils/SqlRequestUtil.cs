@@ -47,18 +47,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         //      +12
         //      $123.12
         //      -$123.12
-        private static readonly Regex _sqlLiteralRegex = new Regex(@"(?:'([^']|'')*')|(?:(-|\+)?\$?\d+(\.\d+)?)");
         private static readonly Regex _portNumberRegex = new Regex(@"[,|:]\d+$");
-
-        private static readonly Logger _logger = Logger.GetLogger(typeof(SqlRequestUtil));
-
-        /// <summary>
-        /// Sanitizes the TSQL query.
-        /// </summary>
-        internal static string SanitizeTsqlQuery(string query)
-        {
-            return _sqlLiteralRegex.Replace(query, "?");
-        }
 
         /// <summary>
         /// Removes the port number from data source.
