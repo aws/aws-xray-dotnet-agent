@@ -15,7 +15,6 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
-using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
@@ -35,30 +34,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
     /// </summary>
     public static class SqlRequestUtil
     {
-        // 1st alternative: (?:'([^']|'')*') matches single quoted literals, i.e. string, datatime.
-        // Example:
-        //      'apple'
-        //      'very ''strong'''
-        //      ''
-        // 2nd alternative: (?:(-|\+)?\$?\d+(\.\d+)? matches number and money
-        // Example:
-        //      123.12
-        //      -123
-        //      +12
-        //      $123.12
-        //      -$123.12
-        private static readonly Regex _sqlLiteralRegex = new Regex(@"(?:'([^']|'')*')|(?:(-|\+)?\$?\d+(\.\d+)?)");
+
         private static readonly Regex _portNumberRegex = new Regex(@"[,|:]\d+$");
-
-        private static readonly Logger _logger = Logger.GetLogger(typeof(SqlRequestUtil));
-
-        /// <summary>
-        /// Sanitizes the TSQL query.
-        /// </summary>
-        internal static string SanitizeTsqlQuery(string query)
-        {
-            return _sqlLiteralRegex.Replace(query, "?");
-        }
 
         /// <summary>
         /// Removes the port number from data source.

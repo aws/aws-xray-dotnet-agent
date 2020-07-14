@@ -106,35 +106,22 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
         }
 
         /// <summary>
-        /// Add AutoInstrumentation mark on the Segment or Subsegment (Lambda)
+        /// Add AutoInstrumentation mark on the Segment 
         /// </summary>
         public static void AddAutoInstrumentationMark()
         {
 
             try
             {
-                Entity traceContext = null;
-#if !NET45
-                if (AWSXRayRecorder.IsLambda())
-                {
-                    traceContext = AWSXRayRecorder.Instance.GetEntity() as Subsegment;
-                }
-                else
-                {
-                    traceContext = AWSXRayRecorder.Instance.GetEntity() as Segment;
-                }
-#else
-                // Lambda currently doesn't support .NET framework
-                traceContext = AWSXRayRecorder.Instance.GetEntity() as Segment;
-#endif
+                var segment = AWSXRayRecorder.Instance.GetEntity() as Segment;
 
-                if (traceContext == null)
+                if (segment == null)
                 {
-                    _logger.DebugFormat("Unable to retrieve Segment/Subsegment from trace context");
+                    _logger.DebugFormat("Unable to retrieve Segment from trace context");
                     return;
                 }
 
-                IDictionary<string, object> awsAttribute = traceContext.Aws;
+                IDictionary<string, object> awsAttribute = segment.Aws;
 
                 if (awsAttribute == null)
                 {
