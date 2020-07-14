@@ -14,7 +14,7 @@ See the [Sample App](https://github.com/aws-samples/aws-xray-dotnet-webapp) for 
 | [HttpWebRequest](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet-httpclients.html) | ✔ | ✔ | ✔ | ✔ |
 | [System.Data.SqlClient](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet-sqlqueries.html) | ✔ | ✔ | ✔ | ✔ |
 | [Microsoft.Data.SqlClient](https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlclient) | ❌ | ❌ |    ❌ |  ✔ |
-| [EntityFramework](https://docs.microsoft.com/en-us/ef/) | ❌ |✔ (EF Core)| ✔ (EF 6)| ✔ (EF Core)| 
+| [EntityFramework](https://docs.microsoft.com/en-us/ef/) | ❌ |✔ (EF Core)| ✔ (EF 6)| ✔ (EF Core)|
 | [Local Sampling](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet-configuration.html#xray-sdk-dotnet-configuration-sampling) | ✔ | ✔ | ✔ | ✔ |
 | [Dynamic Sampling](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet-configuration.html#xray-sdk-dotnet-configuration-sampling) | ✔ | ✔ | ✔ | ✔ |
 | [Multithreaded Execution](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#multithreaded-execution-net-and-net-core--nuget) | ✔ | ✔ | ✔ | ✔ |
@@ -29,7 +29,7 @@ If you're running an Asp.Net Core application, you need to install the latest ve
 
 AWS X-Ray .Net Agent will register the [configuration items](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#configuration) as AWS X-Ray .NET SDK.
 
-Besides, AWS X-Ray .Net Agent will register the following configuration items. 
+Besides, AWS X-Ray .Net Agent will register the following configuration items.
 ```
 {
     "ServiceName" : "DefaultService",
@@ -42,7 +42,7 @@ Besides, AWS X-Ray .Net Agent will register the following configuration items.
 ```
 You can customize the service name of your application, the daemon address and specify which request to trace through `appsettings.json` file (Asp.Net Core) or `web.config` file (Asp.Net).
 
-If you don't provide these configuration items, the default values shown above will be applied by AWS X-Ray .NET Agent. 
+If you don't provide these configuration items, the default values shown above will be applied by AWS X-Ray .NET Agent.
 
 Note:
 
@@ -62,7 +62,11 @@ For building profiler, you need to have workloads **.NET desktop development** a
 
 ### Development
 
-Currently, the `AWSXRayRecorder.AutoInstrumentation` Nuget hasn’t been released yet (please stay tuned!), so in case that you need to add it to you application, you can git clone this repo, reference `AWSXRayRecorder.AutoInstrumentation` package to your application and rebuild. 
+Currently, the `AWSXRayRecorder.AutoInstrumentation` Nuget hasn’t been released yet (please stay tuned!), so in case that you need to add it to you application, you can git clone this repo, reference `AWSXRayRecorder.AutoInstrumentation` package to your application and rebuild.
+
+Note:
+
+DotNet Coreclr Lib is required to build `AWSXRayRecorder.AutoInstrumentation`. You can checkout it at this [repo](https://github.com/dotnet/coreclr/tree/coreclr). Put coreclr folder under 'aws-xray-dotnet-agent\src\profiler', then you are good to go.
 
 ### Automatic Instrumentation
 
@@ -70,7 +74,7 @@ Currently, the `AWSXRayRecorder.AutoInstrumentation` Nuget hasn’t been release
 
 ##### Asp.Net Core & Asp.Net
 
-1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**. 
+1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**.
 2. Download and run AWS X-Ray .NET Agent Installer ([x64](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
 3. Restart IIS and launch your application.
 ```
@@ -92,7 +96,7 @@ dotnet YourApplication.dll
 ```
 Note:
 
-* **Do not set environment variables globally into the system variables as profiler will try to instrument all .NET processes running on the instance with AWS X-Ray tracing SDK.** 
+* **Do not set environment variables globally into the system variables as profiler will try to instrument all .NET processes running on the instance with AWS X-Ray tracing SDK.**
 
 ##### Asp.Net
 
@@ -100,8 +104,8 @@ Note:
 2. Add the following snippet into the `web.config` file.
 ```
 <system.webServer>
- <modules> 
-  <add name="AWSXRayTracingModule" type="Amazon.XRay.Recorder.AutoInstrumentation.AspNetAutoInstrumentationModule,AWSXRayRecorder.AutoInstrumentation,Version=2.9.0.0,Culture=neutral,PublicKeyToken=d427001f96b0d0b6" /> 
+ <modules>
+  <add name="AWSXRayTracingModule" type="Amazon.XRay.Recorder.AutoInstrumentation.AspNetAutoInstrumentationModule,AWSXRayRecorder.AutoInstrumentation,Version=2.9.0.0,Culture=neutral,PublicKeyToken=d427001f96b0d0b6" />
  </modules>
 </system.webServer>
 ```
