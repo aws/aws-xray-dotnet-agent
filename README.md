@@ -66,7 +66,7 @@ Currently, the `AWSXRayRecorder.AutoInstrumentation` Nuget hasn’t been release
 
 Note:
 
-DotNet Coreclr Lib is required to build `AWSXRayRecorder.AutoInstrumentation`. You can checkout it at this [repo](https://github.com/dotnet/coreclr/tree/coreclr). Put coreclr folder under 'aws-xray-dotnet-agent\src\profiler', then you are good to go.
+DotNet Coreclr Lib is required to build `AWSXRayRecorder.AutoInstrumentation`. You can checkout it at this [repo](https://github.com/dotnet/coreclr/tree/coreclr). Put coreclr folder under `aws-xray-dotnet-agent\src\profiler`, then you are good to go.
 
 ### Automatic Instrumentation
 
