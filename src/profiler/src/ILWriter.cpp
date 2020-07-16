@@ -167,25 +167,54 @@ void* ILWriter::GetNewILHeader()
     injectedCode->call = 0x28;
 
     if (identifier == FatMethod)
-    {        
-        memcpy(codeBuffer, methodHeader, FatMethodHeader);
+    {
+        memcpy_s(
+            codeBuffer,
+            newMethodTotalSize,
+            methodHeader,
+            FatMethodHeader);
 
-        WORD maxStack = (WORD)((COR_ILMETHOD_FAT*)methodHeader)->MaxStack + InjectedCodeSize/2;
-        memcpy(codeBuffer + sizeof(WORD), &maxStack, sizeof(WORD));
+        WORD maxStack = (WORD)((COR_ILMETHOD_FAT*)methodHeader)->MaxStack + InjectedCodeSize / 2;
+        memcpy_s(
+            codeBuffer + sizeof(WORD),
+            newMethodTotalSize - sizeof(WORD),
+            &maxStack,
+            sizeof(WORD));
 
         DWORD newMethodBodySize = ((COR_ILMETHOD_FAT*)methodHeader)->GetCodeSize() + InjectedCodeSize;
-        memcpy(codeBuffer + sizeof(DWORD), &newMethodBodySize, sizeof(DWORD));
-        
-        memcpy(injectedCode->token, (void*)&autoInstrumentationMethodToken, sizeof(autoInstrumentationMethodToken));
-        memcpy(codeBuffer + FatMethodHeader, injectedCode, InjectedCodeSize);
+        memcpy_s(
+            codeBuffer + sizeof(DWORD),
+            newMethodTotalSize - sizeof(DWORD),
+            &newMethodBodySize,
+            sizeof(DWORD));
+
+        memcpy_s(
+            injectedCode->token,
+            sizeof(injectedCode->token),
+            (void*)&autoInstrumentationMethodToken,
+            sizeof(autoInstrumentationMethodToken));
+
+        memcpy_s(
+            codeBuffer + FatMethodHeader,
+            newMethodTotalSize - FatMethodHeader,
+            injectedCode,
+            InjectedCodeSize);
 
         ULONG oldMethodBodySize = ((COR_ILMETHOD_FAT*)methodHeader)->GetCodeSize();
 
-        memcpy(codeBuffer + FatMethodHeader + InjectedCodeSize, (BYTE*)methodHeader + FatMethodHeader, oldMethodBodySize);
+        memcpy_s(
+            codeBuffer + FatMethodHeader + InjectedCodeSize,
+            newMethodTotalSize - FatMethodHeader - InjectedCodeSize,
+            (BYTE*)methodHeader + FatMethodHeader,
+            oldMethodBodySize);
 
         ULONG oldMethodSize = FatMethodHeader + ((COR_ILMETHOD_FAT*)methodHeader)->GetCodeSize();
         ULONG extraSectionSize = methodSize - oldMethodSize;
-        memcpy(codeBuffer + FatMethodHeader + InjectedCodeSize + oldMethodBodySize, (BYTE*)methodHeader + (methodSize - extraSectionSize - GetOffset()), extraSectionSize);
+        memcpy_s(
+            codeBuffer + FatMethodHeader + InjectedCodeSize + oldMethodBodySize,
+            newMethodTotalSize - FatMethodHeader - InjectedCodeSize - oldMethodBodySize + GetOffset(),
+            (BYTE*)methodHeader + (methodSize - extraSectionSize - GetOffset()),
+            extraSectionSize);
 
         if (((COR_ILMETHOD_FAT*)methodHeader)->GetFlags() & CorILMethod_MoreSects)
         {
@@ -197,31 +226,71 @@ void* ILWriter::GetNewILHeader()
         ULONG newMethodBodySize = ((COR_ILMETHOD_TINY*)methodHeader)->GetCodeSize() + InjectedCodeSize;
 
         BYTE newBodySize = (BYTE)(CorILMethod_TinyFormat | (newMethodBodySize << 2));
-        memcpy(codeBuffer, &newBodySize, TinyMethodHeader);
-        memcpy(injectedCode->token, (void*)&autoInstrumentationMethodToken, sizeof(autoInstrumentationMethodToken));
-        memcpy(codeBuffer + TinyMethodHeader, injectedCode, InjectedCodeSize);
+        memcpy_s(
+            codeBuffer,
+            newMethodTotalSize,
+            &newBodySize,
+            TinyMethodHeader);
+        memcpy_s(
+            injectedCode->token,
+            sizeof(injectedCode->token),
+            (void*)&autoInstrumentationMethodToken,
+            sizeof(autoInstrumentationMethodToken));
+        memcpy_s(
+            codeBuffer + TinyMethodHeader,
+            newMethodTotalSize - TinyMethodHeader,
+            injectedCode,
+            InjectedCodeSize);
 
         ULONG oldMethodBodySize = ((COR_ILMETHOD_TINY*)methodHeader)->GetCodeSize();
 
-        memcpy(codeBuffer + TinyMethodHeader + InjectedCodeSize, (BYTE*)methodHeader + TinyMethodHeader, oldMethodBodySize);
+        memcpy_s(
+            codeBuffer + TinyMethodHeader + InjectedCodeSize,
+            newMethodTotalSize - TinyMethodHeader - InjectedCodeSize,
+            (BYTE*)methodHeader + TinyMethodHeader,
+            oldMethodBodySize);
 
     }
     else if (identifier == OtherMethod)
     {
         BYTE flags[] = { 0x03, 0x30, };
-        memcpy(codeBuffer, &flags, sizeof(WORD));
+        memcpy_s(
+            codeBuffer,
+            newMethodTotalSize,
+            &flags,
+            sizeof(WORD));
 
         WORD maxStack = 1 + (InjectedCodeSize / 2);
-        memcpy(codeBuffer + sizeof(WORD), &maxStack, sizeof(WORD));
+        memcpy_s(
+            codeBuffer + sizeof(WORD),
+            newMethodTotalSize - sizeof(WORD),
+            &maxStack,
+            sizeof(WORD));
 
         DWORD newMethodBodySize = ((COR_ILMETHOD_TINY*)methodHeader)->GetCodeSize() + InjectedCodeSize;
-        memcpy(codeBuffer + sizeof(DWORD), &newMethodBodySize, sizeof(DWORD));
-        memcpy(injectedCode->token, (void*)&autoInstrumentationMethodToken, sizeof(autoInstrumentationMethodToken));
-        memcpy(codeBuffer + FatMethodHeader, injectedCode, InjectedCodeSize);
+        memcpy_s(
+            codeBuffer + sizeof(DWORD),
+            newMethodTotalSize - sizeof(DWORD),
+            &newMethodBodySize,
+            sizeof(DWORD));
+        memcpy_s(
+            injectedCode->token,
+            sizeof(injectedCode->token),
+            (void*)&autoInstrumentationMethodToken,
+            sizeof(autoInstrumentationMethodToken));
+        memcpy_s(
+            codeBuffer + FatMethodHeader,
+            newMethodTotalSize - FatMethodHeader,
+            injectedCode,
+            InjectedCodeSize);
 
         ULONG oldMethodBodySize = ((COR_ILMETHOD_TINY*)methodHeader)->GetCodeSize();
 
-        memcpy(codeBuffer + FatMethodHeader + InjectedCodeSize, (BYTE*)methodHeader + TinyMethodHeader, oldMethodBodySize);
+        memcpy_s(
+            codeBuffer + FatMethodHeader + InjectedCodeSize,
+            newMethodTotalSize - FatMethodHeader - InjectedCodeSize,
+            (BYTE*)methodHeader + TinyMethodHeader,
+            oldMethodBodySize);
     }
 
     return codeBuffer;
