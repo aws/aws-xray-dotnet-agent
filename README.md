@@ -89,8 +89,8 @@ iisreset
 2. Download and install AWS X-Ray .NET Agent Installer ([x64](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.console.aws.amazon.com/s3/buckets/aws-xray-assets.us-east-2/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
 3. Launch your application as follows.
 ```
-SET CORECLR_PROFILER = {AE47A175-390A-4F13-84CB-7169CEBF064A}
-SET CORECLR_ENABLE_PROFILING = 1
+SET CORECLR_PROFILER={AE47A175-390A-4F13-84CB-7169CEBF064A}
+SET CORECLR_ENABLE_PROFILING=1
 
 dotnet YourApplication.dll
 ```
