@@ -86,11 +86,12 @@ iisreset
 ##### Asp.Net Core
 
 1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**.
-2. Download and install AWS X-Ray .NET Agent Installer ([x64](https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
+2. Follow development instructions and build `profiler`. The output file of `profiler` should be `ClrProfiler.dll`.
 3. Launch your application as follows.
 ```
 SET CORECLR_PROFILER={AE47A175-390A-4F13-84CB-7169CEBF064A}
 SET CORECLR_ENABLE_PROFILING=1
+SET CORECLR_PROFILER_PATH=\Path\to\ClrProfiler.dll\ // The path to ClrProfiler.dll that you built
 
 dotnet YourApplication.dll
 ```
