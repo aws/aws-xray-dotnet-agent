@@ -1,0 +1,36 @@
+name: X-Ray .NET Agent PR build workflow 
+
+on:
+    pull_request:
+        branches:
+            - master
+            
+jobs:
+    build:
+        name: build
+        runs-on: ${{ matrix.os }}
+        
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [windows-latest,ubuntu-latest]
+                version: [net452,netcoreapp2.0]
+                exclude:
+                  - os: ubuntu-latest
+                    version: net452
+                
+        steps:
+        - name: Checkout repository
+        - uses: actions/checkout@v2
+          
+        - name: Clean solution
+          run: dotnet clean src/AWSXRayRecorder.AutoInstrumentation.sln --configuration Release && dotnet nuget locals all --clear
+        
+        - name: Install dependencies
+          run: dotnet restore src/AWSXRayRecorder.AutoInstrumentation.sln --locked-mode
+          
+        - name: Build solution
+          run: dotnet build src/AWSXRayRecorder.AutoInstrumentation.sln --configuration Release --no-restore
+          
+        - name: Run tests
+          run: dotnet test src/test/bin/Release/${{matrix.version}}/AWSXRayRecorder.AutoInstrumentation.UnitTests.dll
