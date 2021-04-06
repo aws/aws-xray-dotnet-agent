@@ -25,7 +25,7 @@ jobs:
       - name: Publish metric on X-Ray .NET agent distribution availability (S3)
         if: ${{ always() }}
         run: |
-          if [[ "${{ steps.distribution-availability-github.outcome }}" == "failure" ]]; then
+          if [[ "${{ steps.distribution-availability-s3.outcome }}" == "failure" ]]; then
             aws cloudwatch put-metric-data --metric-name XRayDotnetAgentS3DistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 1 --timestamp $(date +%s)
           else
             aws cloudwatch put-metric-data --metric-name XRayDotnetAgentS3DistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 0 --timestamp $(date +%s)
