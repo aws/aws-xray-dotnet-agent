@@ -34,3 +34,4 @@ jobs:
           
         - name: Run tests
           run: dotnet test src/test/bin/Release/${{matrix.version}}/AWSXRayRecorder.AutoInstrumentation.UnitTests.dll
+          
