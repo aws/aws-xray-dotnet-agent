@@ -17,10 +17,7 @@
 
 #if NET45
 using Amazon.XRay.Recorder.AutoInstrumentation.Utils;
-using System;
 using System.Collections.Concurrent;
-using System.IO;
-using System.Reflection;
 using System.Web;
 
 namespace Amazon.XRay.Recorder.AutoInstrumentation
@@ -36,63 +33,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation
 
         static AspNetAutoInstrumentationModule()
         {
-            // Load the satellite dependencies of AWSXRayRecorder.AutoInstrumentation.dll at runtime
-            // This can avoid duplicate introducing dependency when the same dependency's already in user's application
-            AppDomain.CurrentDomain.AssemblyResolve += AWSXRayAutoInstrumentationDependency;
             AspNetRequestUtil.InitializeAspNet();
-        }
-
-        private static Assembly AWSXRayAutoInstrumentationDependency(object sender, ResolveEventArgs args)
-        {
-            var assemblyName = new AssemblyName(args.Name).Name;
-
-            // DotNet agent installer installs the required dependencies in user's "C:\ProgramFiles\AWSXRayAgent\Net45" folder (64bit) or "C:\ProgramFiles(x86)\AWSXRayAgent\Net45" (32bit)
-            var agentFolderRootPath = GetAgentFolderPath();
-
-            var agentFolderPath = Path.Combine(agentFolderRootPath, "AWSXRayAgent\\Net45"); 
-
-            var path = Path.Combine(agentFolderPath, $"{assemblyName}.dll");
-
-            // Can allow multiple applications to read and load the same assembly in the same folder
-            byte[] assemblyBytes = LoadBytesFromAssembly(path);
-
-            var assembly = Assembly.Load(assemblyBytes);
-
-            return assembly;
-        }
-
-        /// <summary>
-        /// Get the path to the AWS Agent folder
-        /// </summary>
-        private static string GetAgentFolderPath()
-        {
-            if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
-            {
-                return Environment.ExpandEnvironmentVariables("%ProgramFiles(x86)%");
-            }
-
-            return Environment.ExpandEnvironmentVariables("%ProgramFiles%");
-        }
-
-        private static byte[] LoadBytesFromAssembly(string path)
-        {
-            byte[] fileBytes;
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                int length = (int)fileStream.Length;
-                fileBytes = new byte[length];
-
-                int count;
-                int offset = 0;
-
-                // Make sure read all bytes
-                while ((count = fileStream.Read(fileBytes, offset, length-offset)) > 0)
-                {
-                    offset += count;
-                }
-            }
-
-            return fileBytes;
         }
 
         public void Init(HttpApplication httpApplication)
