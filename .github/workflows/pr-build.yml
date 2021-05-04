@@ -1,25 +1,25 @@
 name: X-Ray .NET Agent PR build workflow 
 
 on:
-    pull_request:
-        branches:
-            - master
+  pull_request:
+    branches:
+      - master
             
 jobs:
-    build:
-        name: build
-        runs-on: ${{ matrix.os }}
+  build:
+    name: build
+    runs-on: ${{ matrix.os }}
         
-        strategy:
-            fail-fast: false
-            matrix:
-                os: [windows-latest,ubuntu-latest]
-                version: [net452,netcoreapp2.0]
-                exclude:
-                  - os: ubuntu-latest
-                    version: net452
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest,ubuntu-latest]
+        version: [net452,netcoreapp2.0]
+        exclude:
+          - os: ubuntu-latest
+            version: net452
                 
-        steps:
+      steps:
         - name: Checkout repository
           uses: actions/checkout@v2
           
@@ -34,4 +34,3 @@ jobs:
           
         - name: Run tests
           run: dotnet test src/test/bin/Release/${{matrix.version}}/AWSXRayRecorder.AutoInstrumentation.UnitTests.dll
-          
