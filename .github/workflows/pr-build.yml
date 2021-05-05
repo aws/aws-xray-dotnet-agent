@@ -19,18 +19,18 @@ jobs:
           - os: ubuntu-latest
             version: net452
                 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
           
-        - name: Clean solution
-          run: dotnet clean src/AWSXRayRecorder.AutoInstrumentation.sln --configuration Release && dotnet nuget locals all --clear
+      - name: Clean solution
+        run: dotnet clean src/AWSXRayRecorder.AutoInstrumentation.sln --configuration Release && dotnet nuget locals all --clear
         
-        - name: Install dependencies
-          run: dotnet restore src/AWSXRayRecorder.AutoInstrumentation.sln --locked-mode
+      - name: Install dependencies
+        run: dotnet restore src/AWSXRayRecorder.AutoInstrumentation.sln --locked-mode
           
-        - name: Build solution
-          run: dotnet build src/AWSXRayRecorder.AutoInstrumentation.sln --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build src/AWSXRayRecorder.AutoInstrumentation.sln --configuration Release --no-restore
           
-        - name: Run tests
-          run: dotnet test src/test/bin/Release/${{matrix.version}}/AWSXRayRecorder.AutoInstrumentation.UnitTests.dll
+      - name: Run tests
+        run: dotnet test src/test/bin/Release/${{matrix.version}}/AWSXRayRecorder.AutoInstrumentation.UnitTests.dll
