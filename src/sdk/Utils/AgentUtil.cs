@@ -19,6 +19,7 @@ using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
@@ -129,7 +130,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
                 }
                 else
                 {
-                    Dictionary<string, string> xrayAttribute = (Dictionary<string, string>)awsAttribute["xray"];
+                    ConcurrentDictionary<string, string> xrayAttribute = (ConcurrentDictionary<string, string>)awsAttribute["xray"];
 
                     if (xrayAttribute == null)
                     {
