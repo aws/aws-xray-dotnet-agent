@@ -62,8 +62,6 @@ For building profiler, you need to have workloads **.NET desktop development** a
 
 ### Development
 
-Currently, the `AWSXRayRecorder.AutoInstrumentation` Nuget hasn’t been released yet (please stay tuned!), so in case that you need to add it to you application, you can git clone this repo, reference `AWSXRayRecorder.AutoInstrumentation` package to your application and rebuild.
-
 Note:
 
 DotNet Coreclr Lib is required to build the profiler project in this repo. You can find it at this [repo](https://github.com/dotnet/runtime/tree/master/src/coreclr). Put coreclr folder under `aws-xray-dotnet-agent\src\profiler`, then you are good to go.
@@ -74,8 +72,8 @@ DotNet Coreclr Lib is required to build the profiler project in this repo. You c
 
 ##### Asp.Net Core & Asp.Net
 
-1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**.
-2. Download and run AWS X-Ray .NET Agent Installer ([x64](https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi)).
+1. Git clone this repo and import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**.
+2. Download and run AWS X-Ray .NET Agent Installer ([x64](https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X86.msi)).
 3. Restart IIS and launch your application.
 ```
 iisreset
@@ -85,13 +83,12 @@ iisreset
 
 ##### Asp.Net Core
 
-1. Import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**.
-2. Follow development instructions and build `profiler`. The output file of `profiler` should be `ClrProfiler.dll`.
+1. Git clone this repo and import `AWSXRayRecorder.AutoInstrumentation` package into your project and **rebuild**.
+2. Download and run AWS X-Ray .NET Agent Installer ([x64](https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X64.msi) and [x86](https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X86.msi)).
 3. Launch your application as follows.
 ```
 SET CORECLR_PROFILER={AE47A175-390A-4F13-84CB-7169CEBF064A}
 SET CORECLR_ENABLE_PROFILING=1
-SET CORECLR_PROFILER_PATH=\Path\to\ClrProfiler.dll\ // The path to ClrProfiler.dll that you built
 
 dotnet YourApplication.dll
 ```
@@ -106,7 +103,7 @@ Note:
 ```
 <system.webServer>
  <modules>
-  <add name="AWSXRayTracingModule" type="Amazon.XRay.Recorder.AutoInstrumentation.AspNetAutoInstrumentationModule,AWSXRayRecorder.AutoInstrumentation,Version=2.9.0.0,Culture=neutral,PublicKeyToken=d427001f96b0d0b6" />
+  <add name="AWSXRayTracingModule" type="Amazon.XRay.Recorder.AutoInstrumentation.AspNetAutoInstrumentationModule,AWSXRayRecorder.AutoInstrumentation,Version=2.10.0.0,Culture=neutral,PublicKeyToken=d427001f96b0d0b6" />
  </modules>
 </system.webServer>
 ```
