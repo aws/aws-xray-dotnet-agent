@@ -6,7 +6,7 @@ on:
 
 jobs:
   pull-agent:
-    name: Pull X-Ray .NET agent from S3
+    name: Pull X-Ray .NET agent from github release
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
@@ -16,17 +16,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Pull X-Ray .NET agent from S3
-        id: distribution-availability-s3
+      - name: Pull X-Ray .NET agent from github release
+        id: distribution-availability-github
         run: |
-          wget https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X86.msi
-          wget https://s3.amazonaws.com/aws-xray-assets.us-east-1/xray-agent-installer/aws-xray-dotnet-agent-installer-beta-X64.msi
+          wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X64.msi
+          wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X86.msi
 
-      - name: Publish metric on X-Ray .NET agent distribution availability (S3)
+      - name: Publish metric on X-Ray .NET agent distribution availability (Github)
         if: ${{ always() }}
         run: |
-          if [[ "${{ steps.distribution-availability-s3.outcome }}" == "failure" ]]; then
-            aws cloudwatch put-metric-data --metric-name XRayDotnetAgentS3DistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 1 --timestamp $(date +%s)
+          if [[ "${{ steps.distribution-availability-github.outcome }}" == "failure" ]]; then
+            aws cloudwatch put-metric-data --metric-name XRayDotnetAgentGithubDistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 1 --timestamp $(date +%s)
           else
-            aws cloudwatch put-metric-data --metric-name XRayDotnetAgentS3DistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 0 --timestamp $(date +%s)
+            aws cloudwatch put-metric-data --metric-name XRayDotnetAgentGithubDistributionUnavailability --dimensions failure=rate --namespace MonitorAgent --value 0 --timestamp $(date +%s)
           fi
