@@ -19,8 +19,10 @@ jobs:
       - name: Pull X-Ray .NET agent from github release
         id: distribution-availability-github
         run: |
-          wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X64.msi
-          wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X86.msi
+          (echo "===== Attempt: 1 ====" && wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X64.msi && wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X86.msi) || \
+          (echo "===== Attempt: 2 ====" && wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X64.msi && wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X86.msi) || \
+          (echo "===== Attempt: 3 ====" && wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X64.msi && wget https://github.com/aws/aws-xray-dotnet-agent/releases/download/v2.10.0-beta.1/aws-xray-dotnet-agent-installer-beta-X86.msi) || \
+          (echo "===== No more retries. Failed! ====" && exit 1)
 
       - name: Publish metric on X-Ray .NET agent distribution availability (Github)
         if: ${{ always() }}
