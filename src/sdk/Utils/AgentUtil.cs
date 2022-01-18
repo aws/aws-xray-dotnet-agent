@@ -138,8 +138,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
                     }
                     else
                     {
-                        // Set attribute "auto_instrumentation":"true" in the "xray" section of the segment
-                        xrayAttribute["auto_instrumentation"] = "true";
+                        // Set attribute "auto_instrumentation":true in the "xray" section of the segment
+                        xrayAttribute["auto_instrumentation"] = true;
                     }
                 }
             }
