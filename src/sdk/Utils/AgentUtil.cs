@@ -130,7 +130,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
                 }
                 else
                 {
-                    ConcurrentDictionary<string, string> xrayAttribute = (ConcurrentDictionary<string, string>)awsAttribute["xray"];
+                    ConcurrentDictionary<string, object> xrayAttribute = (ConcurrentDictionary<string, object>)awsAttribute["xray"];
 
                     if (xrayAttribute == null)
                     {
