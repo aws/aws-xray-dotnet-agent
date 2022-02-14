@@ -130,7 +130,7 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
                 }
                 else
                 {
-                    ConcurrentDictionary<string, string> xrayAttribute = (ConcurrentDictionary<string, string>)awsAttribute["xray"];
+                    ConcurrentDictionary<string, object> xrayAttribute = (ConcurrentDictionary<string, object>)awsAttribute["xray"];
 
                     if (xrayAttribute == null)
                     {
@@ -138,8 +138,8 @@ namespace Amazon.XRay.Recorder.AutoInstrumentation.Utils
                     }
                     else
                     {
-                        // Set attribute "auto_instrumentation":"true" in the "xray" section of the segment
-                        xrayAttribute["auto_instrumentation"] = "true";
+                        // Set attribute "auto_instrumentation":true in the "xray" section of the segment
+                        xrayAttribute["auto_instrumentation"] = true;
                     }
                 }
             }
