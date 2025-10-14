@@ -1,5 +1,8 @@
 name: X-Ray .NET Agent PR build workflow 
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     branches:
