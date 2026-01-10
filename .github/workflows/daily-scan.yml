@@ -31,16 +31,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup .NET for dependency scan
-        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d #v5.0.0
-        with:
-          dotnet-version: '8.0.x'
+      # - name: Setup .NET for dependency scan
+      #   uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d #v5.0.0
+      #   with:
+      #     dotnet-version: '8.0.x'
 
-      - name: Install Java for dependency scan
-        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 #v5.0.0
-        with:
-          java-version: 17
-          distribution: 'temurin'
+      # - name: Install Java for dependency scan
+      #   uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 #v5.0.0
+      #   with:
+      #     java-version: 17
+      #     distribution: 'temurin'
 
       - name: Configure AWS credentials for dependency scan
         uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 #5.0.0
