@@ -121,13 +121,13 @@ jobs:
         if: always()
         run: |
           value="${{ steps.high_scan_latest.outcome == 'success' && '0' || '1' }}"
-          aws cloudwatch put-metric-data --metric-name SecurityScanHighSeverityFailures --dimensions failure=rate --namespace MonitorAgent --value $value --timestamp $(date +%s)
+          aws cloudwatch put-metric-data --metric-name XRayDotnetSecurityScanHighSeverityFailures --dimensions failure=rate --namespace MonitorAgent --value $value --timestamp $(date +%s)
 
       - name: Publish low scan status
         if: always()
         run: |
           value="${{ steps.low_scan_latest.outcome == 'success' && steps.dep_scan.outcome == 'success' && '0' || '1' }}"
-          aws cloudwatch put-metric-data --metric-name SecurityScanLowSeverityFailures --dimensions failure=rate --namespace MonitorAgent --value $value --timestamp $(date +%s)
+          aws cloudwatch put-metric-data --metric-name XRayDotnetSecurityScanLowSeverityFailures --dimensions failure=rate --namespace MonitorAgent --value $value --timestamp $(date +%s)
 
       - name: Cleanup
         if: always()
