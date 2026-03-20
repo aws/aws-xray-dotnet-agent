@@ -54,6 +54,19 @@ jobs:
             OSS_INDEX, ${{ secrets.OSS_INDEX_SECRET_ARN }}
           parse-json-secrets: true
 
+      # NOTE: Unlike other repos, this project does not publish a NuGet package
+      # (it distributes MSI installers via GitHub Releases). We extract the
+      # .csproj from the latest release tag and restore its NuGet dependencies,
+      # so DependencyCheck scans the same dependency tree the built artifact ships.
+      - name: Restore project dependencies for scanning
+        run: |
+          mkdir -p scan-target
+          latest_tag=$(git tag -l 'v*' | sort -rV | head -1)
+          echo "Latest release tag: $latest_tag"
+          git show "${latest_tag}:src/sdk/AWSXRayRecorder.AutoInstrumentation.csproj" > scan-target/AWSXRayRecorder.AutoInstrumentation.csproj
+          cd scan-target
+          dotnet restore --packages ./packages
+
       # See http://jeremylong.github.io/DependencyCheck/dependency-check-cli/ for installation explanation
       - name: Install and run dependency scan
         id: dep_scan
@@ -65,7 +78,7 @@ jobs:
           curl -Ls "https://github.com/dependency-check/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip.asc" --output dependency-check.zip.asc
           gpg --verify dependency-check.zip.asc
           unzip dependency-check.zip
-          ./dependency-check/bin/dependency-check.sh --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "."
+          ./dependency-check/bin/dependency-check.sh --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "scan-target/"
 
       - name: Print dependency scan results on failure
         if: ${{ steps.dep_scan.outcome != 'success' }}
