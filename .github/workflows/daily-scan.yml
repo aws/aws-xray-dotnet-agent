@@ -84,8 +84,15 @@ jobs:
         if: ${{ steps.dep_scan.outcome != 'success' }}
         run: less dependency-check-report.html
 
-      - name: Build .NET solution for scanning
+      # NOTE: This project distributes MSI installers (not NuGet packages or
+      # Docker images), so Trivy cannot scan the published artifact directly.
+      # We check out the latest release tag and build from source as the closest proxy.
+      - name: Build .NET solution at release tag for scanning
+        if: always()
         run: |
+          latest_tag=$(git tag -l 'v*' | sort -rV | head -1)
+          echo "Building at release tag: $latest_tag"
+          git checkout "$latest_tag"
           dotnet build src/AWSXRayRecorder.AutoInstrumentation.sln --configuration Release
 
       - name: Perform high severity scan on built artifacts
