@@ -1,3 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[
+        CVE-2021-43138 is a prototype pollution vulnerability in the JavaScript async library
+        (caolan/async npm package), not the .NET System.Interactive.Async (Rx Ix.Async).
+        ]]></notes>
+        <filePath regex="true">.*System\.Interactive\.Async.*</filePath>
+        <cve>CVE-2021-43138</cve>
+    </suppress>
 </suppressions>
