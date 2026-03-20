@@ -90,9 +90,12 @@ jobs:
       - name: Build .NET solution at release tag for scanning
         if: always()
         run: |
+          cp .github/trivy/daily-scan.trivyignore.yaml /tmp/daily-scan.trivyignore.yaml
           latest_tag=$(git tag -l 'v*' | sort -rV | head -1)
           echo "Building at release tag: $latest_tag"
           git checkout "$latest_tag"
+          mkdir -p .github/trivy
+          cp /tmp/daily-scan.trivyignore.yaml .github/trivy/daily-scan.trivyignore.yaml
           dotnet build src/AWSXRayRecorder.AutoInstrumentation.sln --configuration Release
 
       - name: Perform high severity scan on built artifacts
